@@ -18,9 +18,9 @@
 [![Neovim](https://img.shields.io/badge/Neovim-0.9%2B-57A143?logo=neovim&logoColor=white)](https://neovim.io)
 [![Lua](https://img.shields.io/badge/Lua-5.1%2FLuaJIT-2C2D72?logo=lua&logoColor=white)](https://www.lua.org)
 ![Status](https://img.shields.io/badge/status-beta-orange)
-[![wkd](https://img.shields.io/badge/wkd-family-c6ff3d)](https://stefanbartl.github.io/wkd/p/fileops/)
+[![wkd](https://img.shields.io/badge/wkd-family-c6ff3d)](https://wkdsteve.github.io/wkd/p/fileops/)
 
-> Part of the [wkd](https://stefanbartl.github.io/wkd/) family — see this plugin's [page](https://stefanbartl.github.io/wkd/p/fileops/) on the site.
+> Part of the [wkd](https://wkdsteve.github.io/wkd/) family — see this plugin's [page](https://wkdsteve.github.io/wkd/p/fileops/) on the site.
 
 File operations for Neovim — one command, all operations. `:File` creates,
 navigates, renames, duplicates and deletes files, keeping the buffer and the
@@ -59,7 +59,7 @@ each page answers.
 - [Health check](docs/FEATURES/INTEGRATIONS.md#checkhealth-fileops) — what `:checkhealth fileops` reports.
 - [Architecture](docs/architecture.md) — module layout and responsibilities.
 - [Contributing](docs/CONTRIBUTING.md) — ground rules, project layout, and how to add a subcommand.
-- [Feedback](https://github.com/StefanBartl/fileops.nvim/issues) — bugs, features, usage questions (or a [discussion](https://github.com/StefanBartl/fileops.nvim/discussions) for anything more open-ended).
+- [Feedback](https://github.com/WKDSteve/fileops.nvim/issues) — bugs, features, usage questions (or a [discussion](https://github.com/WKDSteve/fileops.nvim/discussions) for anything more open-ended).
 
 `:help fileops` is the same reference inside the editor.
 

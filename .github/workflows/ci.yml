@@ -34,7 +34,7 @@ jobs:
       # lookup (../lib.nvim) finds it.
       - uses: actions/checkout@v5
         with:
-          repository: StefanBartl/lib.nvim
+          repository: WKDSteve/lib.nvim
           path: lib.nvim
           ref: ci-verified
       - uses: rhysd/action-setup-vim@v1
@@ -44,7 +44,7 @@ jobs:
       # Checked out from the branch that only moves once the dependency's own CI is green.
       - uses: actions/checkout@v5
         with:
-          repository: "StefanBartl/testing.nvim"
+          repository: "WKDSteve/testing.nvim"
           path: testing.nvim
           ref: ci-verified
       - name: Run TESTS suite
@@ -98,7 +98,7 @@ jobs:
           path: fileops.nvim
       - uses: actions/checkout@v5
         with:
-          repository: StefanBartl/lib.nvim
+          repository: WKDSteve/lib.nvim
           path: lib.nvim
           ref: ci-verified
       # explorer_integration_spec.lua's own subject: exercises ops/file.lua's
@@ -138,7 +138,7 @@ jobs:
       # Checked out from the branch that only moves once the dependency's own CI is green.
       - uses: actions/checkout@v5
         with:
-          repository: "StefanBartl/testing.nvim"
+          repository: "WKDSteve/testing.nvim"
           path: testing.nvim
           ref: ci-verified
       - name: Run TESTS suite (with explorer deps on rtp)

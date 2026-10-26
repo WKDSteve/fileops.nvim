@@ -15,7 +15,7 @@ bash scripts/test.sh --file config   # only spec files whose name contains "conf
 bash scripts/test.sh --json ir.json  # also write the machine-readable result
 ```
 
-The runner is [testing.nvim](https://github.com/StefanBartl/testing.nvim)
+The runner is [testing.nvim](https://github.com/WKDSteve/testing.nvim)
 (configured in `.testing.lua`, dialect `h` = the harness below). It prints one
 line per spec file, a summary, and exits non-zero when a spec fails or when
 nvim, testing.nvim or lib.nvim cannot be found. A skipped spec (see the

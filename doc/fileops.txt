@@ -35,13 +35,13 @@ injection risk, fully cross-platform (Windows and Unix).
 2. REQUIREMENTS                                         *fileops-requirements*
 
   - Neovim 0.9 or later
-  - lib.nvim (https://github.com/StefanBartl/lib.nvim) — REQUIRED. Supplies
+  - lib.nvim (https://github.com/WKDSteve/lib.nvim) — REQUIRED. Supplies
     the :File command layer (lib.nvim.bindings.usercmd.composer), the injection-safe
     file primitives behind create/rename/duplicate/delete
     (lib.nvim.cross.fs.mutate), and background buffer opening
     (lib.nvim.buffer.open_background). Only notify's own styling is a
     genuinely soft, cosmetic fallback.
-  - ui.nvim (https://github.com/StefanBartl/ui.nvim) — REQUIRED. ui.kit backs
+  - ui.nvim (https://github.com/WKDSteve/ui.nvim) — REQUIRED. ui.kit backs
     every prompt fileops has no other UI for — the missing-destination
     prompt (:File rename/move/duplicate/copy/touch/new with no argument), the
     modified-buffer confirm on :File next/:File prev, and :File bulk rename /
@@ -54,8 +54,8 @@ injection risk, fully cross-platform (Windows and Unix).
 
 lazy.nvim: >lua
   {
-    "StefanBartl/fileops.nvim",
-    dependencies = { "StefanBartl/lib.nvim", "StefanBartl/ui.nvim" }, -- both required
+    "WKDSteve/fileops.nvim",
+    dependencies = { "WKDSteve/lib.nvim", "WKDSteve/ui.nvim" }, -- both required
     event = "VeryLazy",
     opts  = {},
   }
@@ -63,8 +63,8 @@ lazy.nvim: >lua
 
 packer.nvim / pckr.nvim: >lua
   use({
-    "StefanBartl/fileops.nvim",
-    requires = { "StefanBartl/lib.nvim", "StefanBartl/ui.nvim" }, -- both required
+    "WKDSteve/fileops.nvim",
+    requires = { "WKDSteve/lib.nvim", "WKDSteve/ui.nvim" }, -- both required
     config = function()
       require("fileops").setup()
     end,

@@ -56,7 +56,7 @@ function M.check()
     warn(
       "ui.nvim not found — the missing-destination prompt, the modified-buffer "
         .. "confirm and bulk rename will raise an error when triggered",
-      { 'Install "StefanBartl/ui.nvim"' }
+      { 'Install "WKDSteve/ui.nvim"' }
     )
   end
 
@@ -101,7 +101,7 @@ function M.check()
   if has_composer then
     ok("lib.nvim detected (:File command layer available)")
   else
-    err("lib.nvim not found — :File will fail to register", { 'Install "StefanBartl/lib.nvim"' })
+    err("lib.nvim not found — :File will fail to register", { 'Install "WKDSteve/lib.nvim"' })
   end
   if require("fileops.util.notify").using_lib() then
     ok("lib.nvim.notify in use (styled notifications)")

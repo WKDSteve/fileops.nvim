@@ -75,7 +75,7 @@ After `rename`/`move`, resaves the active `:mksession` session
 no-op when no session is active. The session file must be passed explicitly
 to `:mksession!`, since a bare `:mksession!` ignores `v:this_session` and
 writes `./Session.vim` in the cwd instead. Other session managers
-(possession.nvim, [sessions.nvim](https://github.com/StefanBartl/sessions.nvim))
+(possession.nvim, [sessions.nvim](https://github.com/WKDSteve/sessions.nvim))
 can hook `User FileopsChanged` instead of relying on `v:this_session`.
 
 - **Module:** `ops/file.lua` (inside `move_or_rename`)

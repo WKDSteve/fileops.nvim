@@ -202,7 +202,7 @@ place instead. It's a no-op when no session was ever loaded (`v:this_session
 == ""`), so nothing fires on a fresh Neovim start with no `:source
 Session.vim` behind it. If you use a session manager that isn't
 `v:this_session`-based (possession.nvim,
-[sessions.nvim](https://github.com/StefanBartl/sessions.nvim)), leave
+[sessions.nvim](https://github.com/WKDSteve/sessions.nvim)), leave
 `session_compat.enable` on anyway — it only touches `v:this_session`, so it
 won't conflict — and hook `User FileopsChanged` for the manager's own
 resave logic instead of relying on this feature to cover it.

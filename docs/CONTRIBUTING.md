@@ -1,7 +1,7 @@
 # Contributing to fileops.nvim
 
 Thank you for your interest! Bugs, ideas and questions are welcome in the
-[issue tracker](https://github.com/StefanBartl/fileops.nvim/issues); pull
+[issue tracker](https://github.com/WKDSteve/fileops.nvim/issues); pull
 requests very welcome.
 
 ## Getting the repository into a session
@@ -69,7 +69,7 @@ Work in a scratch directory. Several subcommands delete files.
 ## Tests
 
 `TESTS/` is a headless spec suite run by
-[testing.nvim](https://github.com/StefanBartl/testing.nvim): each `*_spec.lua`
+[testing.nvim](https://github.com/WKDSteve/testing.nvim): each `*_spec.lua`
 returns a function that receives the shared harness (`TESTS/harness.lua`), and
 the run order is the `specs` list in `TESTS/run.lua` (read by testing.nvim,
 never executed — new specs go there too). Run it from the repo root with
