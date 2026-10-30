@@ -49,7 +49,7 @@ return function(H)
 
   -- Every positional argument says what it is in the option float: its own `desc`, else the
   -- one of its type (`register_type`). A lib.nvim older than `help.undocumented` cannot answer
-  -- the question; that is a missing feature of the dependency, not a defect of this plugin.
+  -- the question: the check fails by name instead of being skipped (NEW-43).
   local composer = require("lib.nvim.bindings.usercmd.composer")
   if type(composer.help.undocumented) == "function" then
     local missing = {}
@@ -57,6 +57,11 @@ return function(H)
       missing[#missing + 1] = ("%s <%s>"):format(m.route, m.name)
     end
     eq(table.concat(missing, ", "), "", "every :File argument has a help text")
+  else
+    ok(
+      false,
+      "every :File argument has a help text: lib.nvim lacks composer.help.undocumented, update lib.nvim"
+    )
   end
 
   -- The float shows one line per argument: no line break, no closing full stop, nothing absurdly
