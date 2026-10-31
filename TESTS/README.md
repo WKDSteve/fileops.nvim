@@ -40,8 +40,8 @@ too. The suite shares one Neovim process but no spec may depend on the order
 | `H.is_windows()` | For the cases that pin platform-specific path behaviour. |
 | `H.notifications(fn)` | Run `fn` with `vim.notify` captured; returns what it emitted. |
 | `H.notified(seen, needle)` | Whether any captured notification contains `needle`. |
-| `H.stub(module, value)` | Put a double on `package.loaded`; returns its restore function. |
-| `H.preserve()` | Snapshot buffers, windows, tab pages, autocmds, user commands, global keymaps, the cwd and `vim.g.loaded_fileops`; returns the function that puts them back. |
+| `H.stub(module, value)` | Put a double on `package.loaded`; returns its (idempotent) restore function. `H.run_preserved` also undoes every stub its body left, so a failing spec does not hand its double to the next one. |
+| `H.preserve()` | Snapshot buffers, windows, tab pages, autocmds, user commands, global keymaps, the cwd and `vim.g.loaded_fileops`; returns the function that puts them back (the spec's autocmds first, so they do not fire during the teardown). |
 | `H.run_preserved(spec)` | Run a spec body between `H.preserve()` and its restore, also when it raises or returns early. |
 
 Three rules the whole suite follows:

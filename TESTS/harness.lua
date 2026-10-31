@@ -136,18 +136,33 @@ end
 --- `ui.contextmenu`, `filetree.refs`) or that would shell out to the OS
 --- (`lib.nvim.fs.trash`, `lib.nvim.cross.fs.lock`). Always paired with its
 --- restore so the next spec sees the real module again.
+---
+--- The restore is idempotent and also pushed on `H._stubs`: `H.run_preserved` unwinds the stubs a
+--- spec made, newest first, after the body, so a spec that raises between `H.stub` and its own
+--- restore call does not leave the double in `package.loaded` for every later spec.
 ---@param name string
 ---@param value any
 ---@return fun() restore
 function H.stub(name, value)
   local previous = package.loaded[name]
   package.loaded[name] = value
-  return function()
+  local done = false
+  local function restore()
+    if done then
+      return
+    end
+    done = true
     package.loaded[name] = previous
   end
+  H._stubs[#H._stubs + 1] = restore
+  return restore
 end
 
---- Modes whose global keymaps `H.preserve` snapshots (the ones the state guard of testing.nvim reads).
+--- Restore functions of the stubs not yet unwound by `H.run_preserved`, oldest first.
+---@type (fun())[]
+H._stubs = {}
+
+--- Modes whose global keymaps `H.preserve` snapshots (the ones testing.nvim's state guard reads).
 local KEYMAP_MODES = { "n", "i", "x", "s", "o", "c", "t", "l" }
 
 ---@return table<string, table>
@@ -161,18 +176,55 @@ local function global_keymaps()
   return res
 end
 
----@param mode string
+--- Mode strings of `nvim_get_keymap` that stand for one map over several modes, and the mode
+--- `nvim_set_keymap` takes to define that map again (`:map` reports " ", `:vmap` "v", `:map!` "!").
+local MULTI_MODE = { [" "] = "", v = "v", ["!"] = "!" }
+
+--- Define `m` again: in its own multi-mode form when it was one (`:map`, `:vmap`, `:map!`), so it
+--- does not come back as separate per-mode maps.
+---@param mode string the mode it was read under
 ---@param m table a map as `nvim_get_keymap` returns it
 local function put_keymap(mode, m)
+  mode = MULTI_MODE[m.mode] or mode
   pcall(vim.api.nvim_set_keymap, mode, m.lhs, m.rhs or "", {
-    noremap = m.noremap == 1,
+    noremap = m.noremap ~= 0, -- 2: a `<script>` map, also not remapped
     silent = m.silent == 1,
     expr = m.expr == 1,
     nowait = m.nowait == 1,
+    script = m.script == 1,
+    replace_keycodes = m.replace_keycodes == 1,
     desc = m.desc,
     callback = m.callback,
   })
 end
+
+--- Fields of a `nvim_get_keymap` entry that say where it was defined, not what it does.
+local KEYMAP_ORIGIN =
+  { sid = true, lnum = true, lhsraw = true, lhsrawalt = true, scriptversion = true }
+
+--- Whether two `nvim_get_keymap` entries map the same way (every field except the origin ones).
+---@param a table
+---@param b table
+---@return boolean
+local function same_keymap(a, b)
+  for k, v in pairs(a) do
+    if not KEYMAP_ORIGIN[k] and not vim.deep_equal(v, b[k]) then
+      return false
+    end
+  end
+  for k in pairs(b) do
+    if not KEYMAP_ORIGIN[k] and a[k] == nil then
+      return false
+    end
+  end
+  return true
+end
+
+--- Autocmd group of lib.nvim's which-key watcher. Its module memoises the registration in a local
+--- `watching` flag, so once the restore deletes the watcher the module is dropped from
+--- `package.loaded` as well: the next `require` starts with a clean `watching`/`pending`.
+local WHICH_KEY_GROUP = "lib.nvim.which_key.pending"
+local WHICH_KEY_MODULE = "lib.nvim.bindings.keymap.which_key"
 
 ---@return table<integer, true>
 local function id_set(list)
@@ -190,8 +242,11 @@ end
 --- keymap or a changed working directory behind turns the run red. Every spec takes this snapshot
 --- first and calls the returned function last, so what it created (buffers of its fixtures, the
 --- `:File` command, the keymap preset, the autocmds and `vim.g.loaded_fileops` that `setup()`
---- leaves) is gone again and what it replaced is restored. Windows and tab pages the spec closed itself cannot be brought back: a
---- spec keeps the window and tab page it started in.
+--- leaves) is gone again and what it replaced is restored. Windows and tab pages the spec closed
+--- itself cannot be brought back: a spec keeps the window and tab page it started in.
+---
+--- The spec's autocmds go first, so they do not fire on the surviving window and buffer while the
+--- spec's own windows and buffers are wiped.
 ---@return fun() restore
 function H.preserve()
   local api = vim.api
@@ -213,6 +268,21 @@ function H.preserve()
   end
 
   return function()
+    local which_key_reset = false
+    for _, au in ipairs(api.nvim_get_autocmds({})) do
+      -- The editor's own lazily created groups (`nvim.*`) stay: the runtime module that made one
+      -- keeps its id, so deleting it would break that module for the rest of the run.
+      local runtime = type(au.group_name) == "string" and au.group_name:sub(1, 5) == "nvim."
+      if au.id and not before.autocmds[au.id] and not runtime then
+        pcall(api.nvim_del_autocmd, au.id)
+        if au.group_name == WHICH_KEY_GROUP then
+          which_key_reset = true
+        end
+      end
+    end
+    if which_key_reset then
+      package.loaded[WHICH_KEY_MODULE] = nil
+    end
     for _, t in ipairs(api.nvim_list_tabpages()) do
       if not before.tabs[t] and #api.nvim_list_tabpages() > 1 then
         pcall(vim.cmd, "tabclose! " .. api.nvim_tabpage_get_number(t))
@@ -232,14 +302,6 @@ function H.preserve()
     if vim.fn.getcwd() ~= before.cwd then
       pcall(api.nvim_set_current_dir, before.cwd)
     end
-    for _, au in ipairs(api.nvim_get_autocmds({})) do
-      -- The editor's own lazily created groups (`nvim.*`) stay: the runtime module that made one
-      -- keeps its id, so deleting it would break that module for the rest of the run.
-      local runtime = type(au.group_name) == "string" and au.group_name:sub(1, 5) == "nvim."
-      if au.id and not before.autocmds[au.id] and not runtime then
-        pcall(api.nvim_del_autocmd, au.id)
-      end
-    end
     for name in pairs(api.nvim_get_commands({ builtin = false })) do
       if before.usercmds[name] == nil then
         pcall(api.nvim_del_user_command, name)
@@ -251,12 +313,7 @@ function H.preserve()
       local old = before.keymaps[key]
       if old == nil then
         pcall(api.nvim_del_keymap, mode, m.lhs)
-      elseif
-        old.rhs ~= m.rhs
-        or old.callback ~= m.callback
-        or old.desc ~= m.desc
-        or old.expr ~= m.expr
-      then
+      elseif not same_keymap(old, m) then
         pcall(api.nvim_del_keymap, mode, m.lhs)
         put_keymap(mode, old)
       end
@@ -272,11 +329,19 @@ end
 --- Run a spec body between `H.preserve()` and its restore, also when the body raises.
 ---
 --- Every spec file hands its body to this, so its early exits (a skip when `git` cannot run) and
---- its failures clean up as well; the error is raised again unchanged after the restore.
+--- its failures clean up as well; the error is raised again unchanged after the restore. The
+--- module stubs the body set with `H.stub` are undone first, newest first (a no-op for the ones the
+--- spec already restored itself).
 ---@param spec fun(H: table)
 function H.run_preserved(spec)
+  local depth = #H._stubs
   local restore = H.preserve()
   local ok, err = xpcall(spec, debug.traceback, H)
+  for i = #H._stubs, depth + 1, -1 do
+    local undo = H._stubs[i]
+    H._stubs[i] = nil
+    pcall(undo)
+  end
   restore()
   if not ok then
     error(err, 0)

@@ -112,6 +112,7 @@ local specs = {
   "explorer_integration_spec.lua",
   "install_spec_spec.lua",
   "testing_config_spec.lua",
+  "harness_spec.lua",
 }
 
 local failed = 0
