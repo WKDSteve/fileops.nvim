@@ -24,7 +24,8 @@ explorer integration below) is reported as a skip, never as green; pass
 
 ## Conventions
 
-A spec is a file `TESTS/<name>_spec.lua` returning `function(H) … end`;
+A spec is a file `TESTS/<name>_spec.lua` returning `function(H) H.run_preserved(spec) end`,
+where `spec(H)` is the body;
 testing.nvim discovers it by name. The `specs` list in `run.lua` (read, never
 executed) is kept in sync with the files, so a new spec is added to that list
 too. The suite shares one Neovim process but no spec may depend on the order
@@ -40,13 +41,20 @@ too. The suite shares one Neovim process but no spec may depend on the order
 | `H.notifications(fn)` | Run `fn` with `vim.notify` captured; returns what it emitted. |
 | `H.notified(seen, needle)` | Whether any captured notification contains `needle`. |
 | `H.stub(module, value)` | Put a double on `package.loaded`; returns its restore function. |
+| `H.preserve()` | Snapshot buffers, windows, tab pages, autocmds, user commands, global keymaps, the cwd and `vim.g.loaded_fileops`; returns the function that puts them back. |
+| `H.run_preserved(spec)` | Run a spec body between `H.preserve()` and its restore, also when it raises or returns early. |
 
-Two rules the whole suite follows:
+Three rules the whole suite follows:
 
 - **Nothing is ever written outside `vim.fn.tempname()`.** Every fixture tree
   is built and thrown away there; no spec operates on the repository. The
   cases that need a particular working directory `:cd` into their own scratch
   directory and restore the previous one.
+- **No spec leaves editor state behind.** Every spec body runs through
+  `H.run_preserved`, and testing.nvim's state guard is on `error`
+  (`.testing.lua`): a buffer, window, tab page, autocmd, user command, keymap
+  or working directory a spec leaves turns the run red. A spec closes only
+  the windows and tab pages it opened itself.
 - **No process is spawned that a spec does not need.** `git` is real, in the
   three specs that test git-awareness (and each skips itself if `git` cannot
   run). Everything else that shells out is replaced at `package.loaded`

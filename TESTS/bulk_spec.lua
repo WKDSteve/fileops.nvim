@@ -1,6 +1,6 @@
 -- TESTS/bulk_spec.lua — ops/bulk.lua: batch rename plan + execute.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local bulk = require("fileops.ops.bulk")
 
@@ -61,4 +61,8 @@ return function(H)
   ok(conflict_err2 == nil, "execute! succeeds: " .. tostring(conflict_err2))
   eq(conflict_renamed2, 1, "execute! overwrites the existing destination")
   eq(vim.fn.filereadable(dir .. "a.log"), 0, "execute!: source file gone")
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

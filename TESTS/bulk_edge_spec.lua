@@ -3,7 +3,7 @@
 -- normalization `plan` does before joining, and `execute`'s "keep going after
 -- the first failure" contract.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local bulk = require("fileops.ops.bulk")
   local fn = vim.fn
@@ -431,4 +431,8 @@ return function(H)
     eq(renamed, 0, "executing an empty plan renames nothing")
     eq(err, nil, "…and is not an error")
   end
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

@@ -8,7 +8,7 @@
 -- driven through a `package.loaded["ui.kit"]` stub. The module resolves it
 -- lazily inside `open_path`, so the stub is what it finds.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local cycle = require("fileops.ops.cycle")
   local fn = vim.fn
@@ -127,6 +127,9 @@ return function(H)
       "vsplit without keep_focus leaves focus in the new window"
     )
     eq(fn.expand("%:t"), "b.lua", "vsplit: the new window shows the opened file")
+    -- Back to the window the case started in before closing the others: `:only` in the new
+    -- window would close the original one, which the spec does not own.
+    vim.api.nvim_set_current_win(stay_win)
     vim.cmd("only")
 
     -- tab
@@ -135,7 +138,8 @@ return function(H)
     ok(cycle.open_path(dir .. "c.lua", opts_with({ open_target = "tab" })), "target=tab")
     eq(#vim.api.nvim_list_tabpages(), tabs_before + 1, "tab: a new tab page was opened")
     eq(fn.expand("%:t"), "c.lua", "tab: the new tab shows the opened file")
-    vim.cmd("tabonly")
+    -- Close the new tab page, not the original one (`:tabonly` would keep the new one).
+    vim.cmd("tabclose")
     vim.cmd("only")
 
     -- background: listed, loaded, but neither shown nor focused.
@@ -437,4 +441,8 @@ return function(H)
       "…with the bracketed file's own contents"
     )
   end
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

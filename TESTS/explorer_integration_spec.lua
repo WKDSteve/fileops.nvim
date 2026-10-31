@@ -10,7 +10,7 @@
 -- .github/workflows/ci.yml's `explorer-integration` job) while a local run
 -- with nothing checked out just prints `skip` and passes.
 
-return function(H)
+local function spec(H)
   local ok = H.ok
 
   -- This repo's own root, resolved from THIS FILE's location rather than
@@ -82,4 +82,8 @@ return function(H)
 
   local dok, dmsg = file.delete_current({ force = true })
   ok(dok, "delete against real explorers: " .. tostring(dmsg))
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

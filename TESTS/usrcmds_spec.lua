@@ -1,7 +1,7 @@
 -- TESTS/usrcmds_spec.lua — bindings/usrcmds.lua: the :File dispatcher's
 -- prompt_dest() helper (missing-path prompt, shared by 9 subcommands).
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
 
   require("fileops.config").setup({})
@@ -101,4 +101,8 @@ return function(H)
   end
 
   package.loaded["ui.kit"] = nil
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

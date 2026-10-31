@@ -3,7 +3,7 @@
 -- around an ops function. Thin is exactly why they are worth a spec: each one
 -- has to pick the right op, pass the arguments through, and relay the result.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local fn = vim.fn
   local fileops = require("fileops")
@@ -167,4 +167,8 @@ return function(H)
 
     restore()
   end
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

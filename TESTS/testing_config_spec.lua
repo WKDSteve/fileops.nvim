@@ -7,7 +7,7 @@
 -- the developer's real nvim-data, `lazy/` included. This file pins the narrow form: the one
 -- file neo-tree appends to, as a pattern, and nothing in the config that needs `vim`.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
 
   -- This repo's root from THIS FILE's location (not the cwd: other specs `:cd`).
@@ -62,4 +62,8 @@ return function(H)
   ok(not allowed(data .. "/neo-tree.nvim.log.bak"), "…nor a neighbour of the log file")
   ok(not allowed(data .. "/other.log"), "…nor any other file in the data dir")
   ok(not allowed(data), "…nor the data dir itself")
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

@@ -9,7 +9,7 @@
 -- runtimepath nor a CI checkout, and the point here is which entries fileops
 -- contributes and what they run, not how ui.nvim draws them.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local fn = vim.fn
 
@@ -282,4 +282,8 @@ return function(H)
     restore()
     package.loaded["fileops.integrations.menu"] = nil
   end
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

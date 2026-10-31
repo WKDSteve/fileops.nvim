@@ -6,7 +6,7 @@
 -- arrive too late. lib.nvim's notifier (which this module upgrades to when
 -- lib.nvim is present, as it is in this suite) ends at `vim.notify` as well.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local notify = require("fileops.util.notify")
 
@@ -54,4 +54,8 @@ return function(H)
     eq(notify.report(false, nil), false, "report(false, nil) still returns ok")
   end)
   eq(#silent, 0, "report stays silent when the op returned no message")
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

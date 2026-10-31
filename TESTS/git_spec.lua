@@ -1,6 +1,6 @@
 -- TESTS/git_spec.lua — util/git.lua: is_tracked/mv/rm against a real repo.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local git = require("fileops.util.git")
 
@@ -70,4 +70,8 @@ return function(H)
     nil,
     "rm: no longer shows up in git status (fully removed)"
   )
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

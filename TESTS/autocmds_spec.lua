@@ -7,7 +7,7 @@
 -- real `:write`: the branch under test is what it does with `event.match`,
 -- and a remote-looking match ("ssh://…") must never reach a real write.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local fn = vim.fn
   local autocmds = require("fileops.bindings.autocmds")
@@ -451,4 +451,8 @@ return function(H)
 
     config.setup({})
   end
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

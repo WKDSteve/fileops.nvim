@@ -9,7 +9,7 @@
 -- here needs vim.system stubbed; a real repo drives the real two-subprocess
 -- chain end to end, exactly like it does for a user.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local fn, api = vim.fn, vim.api
 
@@ -411,4 +411,8 @@ return function(H)
   end
 
   teardown()
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

@@ -9,13 +9,13 @@
 -- So: parse the real file with the real parser, insist it validates
 -- completely, and pin what it declares against what the plugin actually uses.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
 
-  local spec = require("lib.nvim.deps.spec")
+  local deps_spec = require("lib.nvim.deps.spec")
 
   local root = vim.fs.normalize(debug.getinfo(1, "S").source:sub(2):match("(.*[/\\])") .. "..")
-  local result, err = spec.load(root .. "/docs/install.json")
+  local result, err = deps_spec.load(root .. "/docs/install.json")
   ok(result ~= nil, "docs/install.json is readable: " .. tostring(err))
   ---@cast result -nil
 
@@ -36,4 +36,8 @@ return function(H)
   local defaults = require("fileops.config.DEFAULTS")
   eq(defaults.on_hold.git_cmd, "git", "the declared git is the default on_hold.git_cmd")
   eq(defaults.git_aware.git_cmd, "git", "the declared git is the default git_aware.git_cmd")
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

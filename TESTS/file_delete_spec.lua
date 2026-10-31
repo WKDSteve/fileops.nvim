@@ -10,7 +10,7 @@
 --
 -- Everything here operates strictly inside `vim.fn.tempname()` directories.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local file = require("fileops.ops.file")
   local fn = vim.fn
@@ -293,4 +293,8 @@ return function(H)
 
     eq(fn.filereadable(dir .. "ghost_copy.txt"), 0, "nothing was created from a vanished source")
   end
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

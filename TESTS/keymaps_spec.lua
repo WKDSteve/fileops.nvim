@@ -7,7 +7,7 @@
 -- no key still shows up, which is exactly the distinction this module's header
 -- makes between "switched off" and "does not exist".
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local fn = vim.fn
   local keymaps = require("fileops.bindings.keymaps")
@@ -426,4 +426,8 @@ return function(H)
   end
 
   config.setup({})
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

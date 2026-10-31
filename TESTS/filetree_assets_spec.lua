@@ -6,7 +6,7 @@
 -- correctly", not "does filetree.refs' own classifier work" (that lives in
 -- filetree.nvim's own TESTS/refs/run.lua).
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
 
   -- `delete.mode = "permanent"` on purpose: the default is "trash" (a real
@@ -194,4 +194,8 @@ return function(H)
     eq(vim.fn.filereadable(asset), 1, "still_referenced: asset never touched")
     cleanup_stubs()
   end
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

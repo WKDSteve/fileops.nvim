@@ -7,7 +7,7 @@
 -- Every fixture lives under `vim.fn.tempname()`; nothing here writes outside
 -- it, and no test ever operates on the repo itself.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local file = require("fileops.ops.file")
   local fn = vim.fn
@@ -452,4 +452,8 @@ return function(H)
     ok(not vok, "info on a vanished file fails")
     ok(tostring(vmsg):find("cannot stat file", 1, true) ~= nil, "info: names the stat failure")
   end
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

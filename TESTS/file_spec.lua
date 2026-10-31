@@ -8,7 +8,7 @@
 ---@diagnostic disable: duplicate-set-field
 -- TESTS/file_spec.lua — ops/file.lua: copy/move/touch and friends.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local file = require("fileops.ops.file")
 
@@ -384,4 +384,8 @@ return function(H)
 
     vim.v.this_session = prev_session
   end
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

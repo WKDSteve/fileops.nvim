@@ -14,8 +14,8 @@ return {
   -- "none" = all specs in one nvim, "file" = one nvim per spec file
   -- (nothing leaks from one file into the next).
   isolated = "none",
-  -- Guards (docs/GUARDS.md of testing.nvim). All but `state` are clean on this suite and therefore
-  -- "error": a new finding turns the run red.
+  -- Guards (docs/GUARDS.md of testing.nvim). All are clean on this suite and therefore "error": a new
+  -- finding turns the run red.
   guards = {
     fs = {
       mode = "error",
@@ -29,9 +29,11 @@ return {
     scheduled_error = "error",
     deprecation = "error",
     process_net = "error",
-    -- "warn": the suite shares one editor (isolated = "none"), so every spec reports the modules, buffers
-    -- and window it leaves behind. The specs are order independent (checked with --shuffle).
-    state = "warn",
+    -- "error": the suite shares one editor (isolated = "none") and leaves no state behind. Every spec runs
+    -- through H.run_preserved (TESTS/harness.lua), which wipes the buffers, windows, tab pages, autocmds,
+    -- user commands and keymaps it created, restores replaced keymaps, the working directory and
+    -- vim.g.loaded_fileops. Loaded modules stay (info only). The specs are order independent (--shuffle).
+    state = "error",
   },
   -- What the specs may start on purpose.
   guard_allow = {

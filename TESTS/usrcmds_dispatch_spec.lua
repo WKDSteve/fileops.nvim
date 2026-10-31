@@ -12,7 +12,7 @@
 --                     process. The spec asserts what fileops hands them.
 -- No fixture lives outside `vim.fn.tempname()`.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local fn = vim.fn
   local config = require("fileops.config")
@@ -1047,4 +1047,8 @@ return function(H)
   restore_kit()
   vim.api.nvim_list_uis = real_list_uis
   config.setup({})
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

@@ -4,7 +4,7 @@
 -- caller past the callback (waited for via vim.wait, same as any other
 -- vim.system callback consumer would).
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local git = require("fileops.util.git")
 
@@ -86,4 +86,8 @@ return function(H)
     nil,
     "rm_async: no longer shows up in git status (fully removed)"
   )
+end
+
+return function(H)
+  H.run_preserved(spec)
 end

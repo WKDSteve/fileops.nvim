@@ -1,6 +1,6 @@
 -- TESTS/cycle_spec.lua — ops/cycle.lua directory listing + navigate.
 
-return function(H)
+local function spec(H)
   local eq, ok = H.eq, H.ok
   local cycle = require("fileops.ops.cycle")
 
@@ -137,4 +137,8 @@ return function(H)
     "Banana.txt,cherry.txt,apple.txt",
     "case_insensitive: full cycle from apple.txt follows case-insensitive order"
   )
+end
+
+return function(H)
+  H.run_preserved(spec)
 end
