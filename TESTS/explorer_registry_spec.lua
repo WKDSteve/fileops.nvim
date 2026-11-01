@@ -49,6 +49,21 @@ local function spec(H)
   ok(good, "a failing adapter is swallowed")
 
   package.loaded[key] = nil
+  -- The registry is lib.nvim.explorer: an adapter registered there directly is reloaded too.
+  local shared = require("lib.nvim.explorer")
+  local direct = 0
+  shared.register({
+    name = "fileops_direct",
+    filetypes = { "fileops_direct" },
+    reload = function()
+      direct = direct + 1
+    end,
+  })
+  file.notify_change("touch", "/tmp/x")
+  eq(direct, 1, "an adapter registered on lib.nvim.explorer reloads on a file change")
+  ok(vim.tbl_contains(file.explorers(), "fileops_direct"), "explorers() lists it")
+  shared.unregister("fileops_direct")
+  shared.unregister("fake")
 end
 
 return function(H)

@@ -169,48 +169,28 @@ end
 ---@field module string      `package.loaded` key; the adapter is skipped until that module is loaded
 ---@field reload fun()       Reload the explorer in place (no root change)
 
----@internal
----Adapter registry: one entry per known file-explorer plugin. A new explorer
----is one `M.register_explorer` call (or one entry here), not another `if`
----in `reload_explorers`.
----@type FileOps.ExplorerAdapter[]
-local EXPLORERS = {
-  {
-    name = "nvim-tree",
-    module = "nvim-tree",
-    reload = function()
-      require("nvim-tree.api").tree.reload()
-    end,
-  },
-  {
-    name = "neo-tree",
-    module = "neo-tree",
-    reload = function()
-      require("neo-tree.sources.manager").refresh("filesystem")
-    end,
-  },
-}
-
----Register a file-explorer adapter (replaces one of the same `name`).
+---Register a file-explorer adapter on `lib.nvim.explorer` (replaces one of the same `name`).
+---Kept as the stable entry point; fileops adapters only need to reload, so a
+---missing `filetypes`/`detect` is filled with a detector that never claims a buffer.
 ---@param adapter FileOps.ExplorerAdapter
 function M.register_explorer(adapter)
   vim.validate("name", adapter.name, "string")
   vim.validate("module", adapter.module, "string")
   vim.validate("reload", adapter.reload, "function")
-  for i, a in ipairs(EXPLORERS) do
-    if a.name == adapter.name then
-      EXPLORERS[i] = adapter
-      return
+  local entry = vim.tbl_extend("keep", {}, adapter)
+  if entry.filetypes == nil and entry.detect == nil then
+    entry.detect = function()
+      return false
     end
   end
-  EXPLORERS[#EXPLORERS + 1] = adapter
+  require("lib.nvim.explorer").register(entry)
 end
 
 ---Names of the registered explorer adapters, in reload order.
 ---@return string[]
 function M.explorers()
   local out = {}
-  for i, a in ipairs(EXPLORERS) do
+  for i, a in ipairs(require("lib.nvim.explorer").adapters()) do
     out[i] = a.name
   end
   return out
@@ -219,14 +199,10 @@ end
 ---@internal
 ---Reload known file-explorer plugins in place (no root change) so they pick
 ---up a file that was just created/renamed/moved/copied/deleted elsewhere in
----the tree. All calls are guarded; plugins that are not loaded are silently
----skipped.
+---the tree. `lib.nvim.explorer.reload_all` guards every call; plugins that
+---are not loaded are silently skipped.
 local function reload_explorers()
-  for _, adapter in ipairs(EXPLORERS) do
-    if package.loaded[adapter.module] then
-      pcall(adapter.reload)
-    end
-  end
+  require("lib.nvim.explorer").reload_all()
 end
 
 ---Notify listeners that a file op changed the tree: always emits a
