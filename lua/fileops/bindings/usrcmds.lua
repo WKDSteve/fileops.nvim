@@ -624,151 +624,156 @@ local function do_bulk_rename(pattern, replacement, bang)
   })
 end
 
----@internal
----Dispatch a parsed command to the appropriate operation.
----@param subcmd string
----@param fargs string[]  Arguments after the subcommand.
----@param bang boolean
----@param count integer   v:count1 equivalent from :N File
-local function dispatch(subcmd, fargs, bang, count)
-  local refresh = refresh_flag()
-  -- Git-awareness and the retry budget travel together: both apply to exactly
-  -- the five subcommands that mutate the filesystem.
-  local mutopts = vim.tbl_extend("force", git_flags(), retry_flags())
+---@class Fileops.CmdCtx
+---@field fargs string[]    Arguments after the subcommand.
+---@field bang boolean
+---@field count integer      v:count1 equivalent from :N File
+---@field refresh boolean    Refresh the explorers afterwards.
+---@field mutopts table      Git-awareness and retry budget (the five mutating subcommands).
 
-  if subcmd == "new" then
-    if fargs[1] then
-      report(file.edit_new(fargs[1], { refresh_explorers = refresh }))
-    else
-      prompt_dest("File new: ", function(dest)
-        report(file.edit_new(dest, { refresh_explorers = refresh }))
-      end)
+---@internal
+---Run `run(dest)` with the first argument, or ask for it when there is none.
+---@param ctx Fileops.CmdCtx
+---@param label string
+---@param run fun(dest: string)
+local function with_dest_arg(ctx, label, run)
+  if ctx.fargs[1] then
+    run(ctx.fargs[1])
+  else
+    prompt_dest(label, run)
+  end
+end
+
+---@internal
+---A subcommand that takes a destination (argument or prompt) and reports `op(dest, opts)`.
+---@param label string
+---@param op fun(dest: string, opts: table): any
+---@param extra? fun(ctx: Fileops.CmdCtx): table  Options added to `refresh_explorers`.
+---@return fun(ctx: Fileops.CmdCtx)
+local function dest_command(label, op, extra)
+  return function(ctx)
+    local opts =
+      vim.tbl_extend("force", { refresh_explorers = ctx.refresh }, extra and extra(ctx) or {})
+    with_dest_arg(ctx, label, function(dest)
+      report(op(dest, opts))
+    end)
+  end
+end
+
+---@internal
+---A subcommand that moves or copies onto a destination: `%`/path argument or prompt,
+---with an overwrite confirmation around `op`.
+---@param label string
+---@param op function
+---@param session_compat boolean  Also tell sessions the file moved.
+---@param prompt_default? fun(): string
+---@return fun(ctx: Fileops.CmdCtx)
+local function transfer_command(label, op, session_compat, prompt_default)
+  return function(ctx)
+    local dest = resolve_dest(ctx.fargs)
+    local base = { bang = ctx.bang, refresh_explorers = ctx.refresh }
+    if session_compat then
+      base.session_compat = session_compat_flag()
     end
-  elseif subcmd == "write" then
-    if fargs[1] then
-      report(file.edit_new(fargs[1], { write = true, bang = bang, refresh_explorers = refresh }))
-    else
-      prompt_dest("File write: ", function(dest)
-        report(file.edit_new(dest, { write = true, bang = bang, refresh_explorers = refresh }))
-      end)
-    end
-  elseif subcmd == "saveas" then
-    if fargs[1] then
-      report(file.save_as(fargs[1], { bang = bang, refresh_explorers = refresh }))
-    else
-      prompt_dest("File saveas: ", function(dest)
-        report(file.save_as(dest, { bang = bang, refresh_explorers = refresh }))
-      end)
-    end
-  elseif subcmd == "writeto" then
-    if fargs[1] then
-      report(file.write_to(fargs[1], { bang = bang, refresh_explorers = refresh }))
-    else
-      prompt_dest("File writeto: ", function(dest)
-        report(file.write_to(dest, { bang = bang, refresh_explorers = refresh }))
-      end)
-    end
-  elseif subcmd == "mkdir" then
-    report(file.mk_parent({ refresh_explorers = refresh }))
-  elseif subcmd == "touch" then
-    if fargs[1] then
-      report(file.touch(fargs[1], { refresh_explorers = refresh }))
-    else
-      prompt_dest("File touch: ", function(dest)
-        report(file.touch(dest, { refresh_explorers = refresh }))
-      end)
-    end
-  elseif subcmd == "rename" then
-    local dest = resolve_dest(fargs)
-    local ropts = vim.tbl_extend(
-      "force",
-      { bang = bang, refresh_explorers = refresh, session_compat = session_compat_flag() },
-      mutopts
-    )
+    local opts = vim.tbl_extend("force", base, ctx.mutopts)
     if dest then
-      run_with_overwrite_confirm(file.rename, dest, ropts)
+      run_with_overwrite_confirm(op, dest, opts)
     else
-      prompt_dest("File rename: ", function(d)
-        run_with_overwrite_confirm(file.rename, d, ropts)
-      end, cur_filename())
+      prompt_dest(label, function(d)
+        run_with_overwrite_confirm(op, d, opts)
+      end, prompt_default and prompt_default() or nil)
     end
-  elseif subcmd == "move" then
-    local dest = resolve_dest(fargs)
-    local mopts = vim.tbl_extend(
-      "force",
-      { bang = bang, refresh_explorers = refresh, session_compat = session_compat_flag() },
-      mutopts
-    )
-    if dest then
-      run_with_overwrite_confirm(file.move, dest, mopts)
-    else
-      prompt_dest("File move: ", function(d)
-        run_with_overwrite_confirm(file.move, d, mopts)
-      end)
-    end
-  elseif subcmd == "duplicate" then
-    local dest = resolve_dest(fargs)
-    local dopts = vim.tbl_extend("force", { bang = bang, refresh_explorers = refresh }, mutopts)
-    if dest then
-      run_with_overwrite_confirm(file.duplicate, dest, dopts)
-    else
-      prompt_dest("File duplicate: ", function(d)
-        run_with_overwrite_confirm(file.duplicate, d, dopts)
-      end)
-    end
-  elseif subcmd == "copy" then
-    local dest = resolve_dest(fargs)
-    local copts = vim.tbl_extend("force", { bang = bang, refresh_explorers = refresh }, mutopts)
-    if dest then
-      run_with_overwrite_confirm(file.copy, dest, copts)
-    else
-      prompt_dest("File copy: ", function(d)
-        run_with_overwrite_confirm(file.copy, d, copts)
-      end)
-    end
-  elseif subcmd == "delete" then
-    local cfg = config.get()
-    local dcfg = cfg.delete or {}
-    local dopts = vim.tbl_extend("force", {
-      force = bang,
+  end
+end
+
+---@internal
+---Subcommand name to its handler.
+---@type table<string, fun(ctx: Fileops.CmdCtx)>
+local HANDLERS = {
+  new = dest_command("File new: ", function(dest, opts)
+    return file.edit_new(dest, opts)
+  end),
+  write = dest_command("File write: ", function(dest, opts)
+    return file.edit_new(dest, opts)
+  end, function(ctx)
+    return { write = true, bang = ctx.bang }
+  end),
+  saveas = dest_command("File saveas: ", function(dest, opts)
+    return file.save_as(dest, opts)
+  end, function(ctx)
+    return { bang = ctx.bang }
+  end),
+  writeto = dest_command("File writeto: ", function(dest, opts)
+    return file.write_to(dest, opts)
+  end, function(ctx)
+    return { bang = ctx.bang }
+  end),
+  touch = dest_command("File touch: ", function(dest, opts)
+    return file.touch(dest, opts)
+  end),
+
+  mkdir = function(ctx)
+    report(file.mk_parent({ refresh_explorers = ctx.refresh }))
+  end,
+
+  rename = transfer_command("File rename: ", file.rename, true, cur_filename),
+  move = transfer_command("File move: ", file.move, true),
+  duplicate = transfer_command("File duplicate: ", file.duplicate, false),
+  copy = transfer_command("File copy: ", file.copy, false),
+
+  delete = function(ctx)
+    local dcfg = config.get().delete or {}
+    delete_confirm.run(vim.tbl_extend("force", {
+      force = ctx.bang,
       mode = dcfg.mode,
       on_before_delete = dcfg.on_before_delete,
-      refresh_explorers = refresh,
-    }, mutopts)
-    delete_confirm.run(dopts)
-  elseif subcmd == "cd" then
+      refresh_explorers = ctx.refresh,
+    }, ctx.mutopts))
+  end,
+
+  cd = function(ctx)
     local cfg = config.get()
-    local arg = fargs[1] and CD_SCOPE_MAP[fargs[1]:lower()]
+    local arg = ctx.fargs[1] and CD_SCOPE_MAP[ctx.fargs[1]:lower()]
     local scope = arg or (cfg.cd and CD_SCOPE_MAP[cfg.cd.scope]) or "lcd"
     local cd_refresh = not (cfg.cd and cfg.cd.refresh_explorers == false)
     report(file.cd_here({ scope = scope, refresh = cd_refresh }))
-  elseif subcmd == "next" then
-    do_cycle("next", fargs[1], fargs[2], count, bang)
-  elseif subcmd == "prev" then
-    do_cycle("prev", fargs[1], fargs[2], count, bang)
-  elseif subcmd == "first" then
-    do_jump("first", fargs[1], bang)
-  elseif subcmd == "last" then
-    do_jump("last", fargs[1], bang)
-  elseif subcmd == "open" then
-    local cfg = config.get()
-    local copts = vim.deepcopy(cfg.cycle or {})
+  end,
 
-    local target = fargs[1] and CYCLE_TARGET_MAP[fargs[1]:lower()]
+  next = function(ctx)
+    do_cycle("next", ctx.fargs[1], ctx.fargs[2], ctx.count, ctx.bang)
+  end,
+  prev = function(ctx)
+    do_cycle("prev", ctx.fargs[1], ctx.fargs[2], ctx.count, ctx.bang)
+  end,
+  first = function(ctx)
+    do_jump("first", ctx.fargs[1], ctx.bang)
+  end,
+  last = function(ctx)
+    do_jump("last", ctx.fargs[1], ctx.bang)
+  end,
+
+  open = function(ctx)
+    local copts = vim.deepcopy(config.get().cycle or {})
+
+    local target = ctx.fargs[1] and CYCLE_TARGET_MAP[ctx.fargs[1]:lower()]
     if target then
       copts.open_target = target
     end
 
-    if bang then
+    if ctx.bang then
       copts.confirm_on_modified = false
     end
 
     report(cycle.open_current(copts))
-  elseif subcmd == "path" then
-    report(file.copy_path(fargs[1]))
-  elseif subcmd == "info" then
+  end,
+
+  path = function(ctx)
+    report(file.copy_path(ctx.fargs[1]))
+  end,
+  info = function()
     report(file.info())
-  elseif subcmd == "lockinfo" then
+  end,
+  lockinfo = function(ctx)
     file.diagnose_lock(function(ok_, msg)
       -- The report is a multi-line block meant to be read and pasted into a
       -- bug report, so it goes to :messages as well — a notification alone
@@ -777,14 +782,37 @@ local function dispatch(subcmd, fargs, bang, count)
         print(msg)
       end
       report(ok_, msg)
-    end, fargs[1])
-  elseif subcmd == "bulk_rename" then
-    do_bulk_rename(fargs[1], fargs[2], bang)
-  elseif subcmd == "help" then
+    end, ctx.fargs[1])
+  end,
+  bulk_rename = function(ctx)
+    do_bulk_rename(ctx.fargs[1], ctx.fargs[2], ctx.bang)
+  end,
+  help = function()
     notify.info(HELP_TEXT)
-  else
+  end,
+}
+
+---@internal
+---Dispatch a parsed command to the appropriate operation.
+---@param subcmd string
+---@param fargs string[]  Arguments after the subcommand.
+---@param bang boolean
+---@param count integer   v:count1 equivalent from :N File
+local function dispatch(subcmd, fargs, bang, count)
+  local handler = HANDLERS[subcmd]
+  if not handler then
     notify.warn(("unknown subcommand %q — try: %s"):format(subcmd, table.concat(SUBCMDS, ", ")))
+    return
   end
+  handler({
+    fargs = fargs,
+    bang = bang,
+    count = count,
+    refresh = refresh_flag(),
+    -- Git-awareness and the retry budget travel together: both apply to exactly
+    -- the five subcommands that mutate the filesystem.
+    mutopts = vim.tbl_extend("force", git_flags(), retry_flags()),
+  })
 end
 
 -- ─── Register ────────────────────────────────────────────────────────────────
