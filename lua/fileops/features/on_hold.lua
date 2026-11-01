@@ -1,4 +1,5 @@
 ---@module 'fileops.features.on_hold'
+-- handrolled-ok: one leading window per Neovim window (keyed by win id), which a single throttle handle cannot express
 ---Ambient, mode-aware line-diff preview on CursorHold/CursorHoldI.
 ---Prefers gitsigns' `preview_hunk_inline()` when available; otherwise falls
 ---back to rendering the previous committed content of the current line as
