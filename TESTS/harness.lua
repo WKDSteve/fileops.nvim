@@ -250,6 +250,21 @@ end
 ---@return fun() restore
 function H.preserve()
   local api = vim.api
+  -- `:edit` reuses an empty unnamed buffer for the file. Wiping that fixture then wipes the buffer
+  -- the spec started in and Neovim makes a new `[No Name]`, which the state guard reads as left
+  -- behind (a spec run on its own, or first). A name keeps the buffer from being reused.
+  local anchor
+  local cur = api.nvim_get_current_buf()
+  if
+    api.nvim_buf_get_name(cur) == ""
+    and vim.bo[cur].buftype == ""
+    and not vim.bo[cur].modified
+    and api.nvim_buf_line_count(cur) == 1
+    and api.nvim_buf_get_lines(cur, 0, 1, false)[1] == ""
+  then
+    anchor = cur
+    api.nvim_buf_set_name(anchor, vim.fn.tempname() .. "-fileops-spec-anchor")
+  end
   local before = {
     cwd = vim.fn.getcwd(),
     -- The one `vim.g` key `setup()` sets: the guard `plugin/fileops.lua` checks.
@@ -297,6 +312,11 @@ function H.preserve()
       if not before.bufs[b] and api.nvim_buf_is_valid(b) then
         pcall(api.nvim_buf_delete, b, { force = true })
       end
+    end
+    if anchor and api.nvim_buf_is_valid(anchor) then
+      pcall(api.nvim_buf_call, anchor, function()
+        vim.cmd("silent keepalt 0file")
+      end)
     end
     vim.g.loaded_fileops = before.loaded
     if vim.fn.getcwd() ~= before.cwd then

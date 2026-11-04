@@ -123,6 +123,20 @@ local function spec(H)
     end
     pcall(api.nvim_del_keymap, "", multi)
   end
+
+  -- ── a fixture opened from an empty buffer does not take that buffer away ──
+  do
+    vim.cmd("enew")
+    local start = api.nvim_get_current_buf()
+    local fixture = H.tmpdir() .. "fixture.txt"
+    H.write_file(fixture, "x")
+    nested(function()
+      eq(H.edit(fixture) ~= start, true, ":edit opens a buffer of its own")
+    end)
+    eq(api.nvim_buf_is_valid(start), true, "the buffer the spec started in is still there")
+    eq(api.nvim_get_current_buf(), start, "and current again")
+    eq(api.nvim_buf_get_name(start), "", "without the name that kept it")
+  end
 end
 
 return function(H)
