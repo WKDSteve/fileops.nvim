@@ -614,6 +614,9 @@ local function do_bulk_rename(pattern, replacement, bang)
   kit.confirm({
     question = ("[fileops] Confirm bulk rename? %d destination(s) exist already"):format(clashes),
     choices = choices,
+    -- Named, not left to the kit: its own default is the Cancel-style button,
+    -- which would make the skip offered first one keypress further away.
+    default = choices[1],
     on_answer = function(choice)
       if skip and choice == skip then
         run(skip_run, skip_held)

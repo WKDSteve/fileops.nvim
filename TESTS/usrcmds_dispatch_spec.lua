@@ -30,7 +30,8 @@ local function spec(H)
       end
     end,
     confirm = function(o)
-      calls[#calls + 1] = { kind = "confirm", question = o.question, choices = o.choices }
+      calls[#calls + 1] =
+        { kind = "confirm", question = o.question, choices = o.choices, default = o.default }
       -- What happens on disk while the dialog is open (it is asynchronous).
       if answers.while_open then
         answers.while_open()
@@ -499,6 +500,7 @@ local function spec(H)
       "the clash is in the question"
     )
     eq(asked.choices[1], "Rename 1, skip 2 existing", "skipping is the first (harmless) choice")
+    eq(asked.default, "Rename 1, skip 2 existing", "…and the dialog starts on it")
     eq(asked.choices[2], "Rename 3, overwrite 2 existing")
     ok(H.notified(skipped, "a_1.txt → b_1.txt  (exists)"), "the preview marks the clash")
     eq(body("b_1.txt"), "old b_1", "skip keeps an existing destination")
@@ -530,7 +532,8 @@ local function spec(H)
     reset()
     answers.confirm = true
     vim.cmd("File! bulk rename ^a_ b_")
-    eq(calls[#calls].choices[1], "Cancel", "with ! the dialog starts on Cancel")
+    eq(calls[#calls].choices[1], "Cancel", "with ! Cancel comes first")
+    eq(calls[#calls].default, "Cancel", "…and the dialog starts on it")
     eq(calls[#calls].choices[2], "Rename 3, overwrite 2 existing", "…and offers no skip")
     eq(body("b_2.txt"), "old b_2", "…so <CR> on it overwrites nothing")
     reset()

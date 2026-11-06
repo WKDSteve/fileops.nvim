@@ -279,8 +279,9 @@ or that `gsub` leaves unchanged, are left alone.
 Shows a preview of every `old → new` pair via `notify.info`, then asks for
 confirmation (`ui.kit.confirm`) before touching disk. When destinations
 exist already, the preview marks them `(exists)` and the dialog offers
-"Rename N, skip K existing" (the first choice: the existing files stay, the
-others are renamed), "Rename M, overwrite K existing" or Cancel, so nothing
+"Rename N, skip K existing" (the first choice, where the dialog starts: the
+existing files stay, the others are renamed), "Rename M, overwrite K existing"
+or Cancel, so nothing
 has to be retyped with `!`. `!` overwrites existing destinations without
 asking about them. Any open
 buffer pointing at a renamed file is re-pointed at the new path (no
