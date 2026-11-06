@@ -72,14 +72,17 @@ sides of such a comparison in one spelling from the start.
 
 ## Doubles, and why
 
-`ui.nvim` is not a dependency of this suite (`.testing.lua` lists only
-`lib.nvim`), so the prompt/dialog layer is always a double. The rest of the
-doubles exist to keep the suite off the OS.
+The specs replace the prompt/dialog layer with a double: an answer has to arrive
+inside the spec. `ui.nvim` is on the runtimepath for the test sheets
+(`TESTS/sheets/`, driven by `sheets_spec.lua`), which press the real dialogs in a
+child editor; `filetree.nvim` and `gitsuite.nvim` are CI checkouts beside this repo
+that single sheets put on their own runtimepath (a `requires` skip without them).
+The rest of the doubles exist to keep the suite off the OS.
 
 | Module | Replaced because | Used in |
 | --- | --- | --- |
-| `ui.kit` | Not a CI checkout; `input`/`confirm` need an answer to continue. | `usrcmds*`, `cycle_edge`, `keymaps`, `filetree_assets` |
-| `ui.contextmenu` | Not a CI checkout; the entries are the subject, not the rendering. | `health_menu` |
+| `ui.kit` | `input`/`confirm` need an answer to continue. | `usrcmds*`, `cycle_edge`, `keymaps`, `filetree_assets` |
+| `ui.contextmenu` | The entries are the subject, not the rendering. | `health_menu` |
 | `lib.nvim.fs.trash` | Real trashing spawns PowerShell/`osascript`/`gio` and would leave fixtures in the machine's recycle bin. | `file_delete`, `usrcmds_dispatch`, `keymaps` |
 | `lib.nvim.cross.fs.lock` | The holder lookup spawns a helper process. | `file_delete`, `usrcmds_dispatch`, `keymaps`, `init_api` |
 | `lib.nvim.cross.fs.mutate` | Swapped for one case each, to prove the retry budget is passed down — a Windows sharing violation cannot be provoked from inside this process. | `file_spec`, `usrcmds_dispatch` |

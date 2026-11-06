@@ -14,7 +14,7 @@
 local this = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p")
 local root = vim.fs.dirname(vim.fs.dirname(vim.fs.normalize(this)))
 
-local DEPS = { "testing.nvim", "lib.nvim" }
+local DEPS = { "testing.nvim", "lib.nvim", "ui.nvim" }
 
 ---@type table<string, string>
 local MARKERS = { ["lib.nvim"] = "lua/lib/nvim", ["testing.nvim"] = "lua/testing" }

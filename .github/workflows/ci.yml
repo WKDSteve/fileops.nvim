@@ -37,6 +37,25 @@ jobs:
           repository: WKDSteve/lib.nvim
           path: lib.nvim
           ref: ci-verified
+      # ui.nvim: a dependency of the suite since the test sheets press its real dialogs.
+      - uses: actions/checkout@v5
+        with:
+          repository: WKDSteve/ui.nvim
+          path: ui.nvim
+          ref: ci-verified
+      # What single test sheets put on their own runtimepath: the real refs engine (cascade-delete
+      # of assets) and the real conflict highlighter. Neither has a ci-verified branch: pinned to the
+      # 2026-11-06 HEAD; bump deliberately, not by drifting.
+      - uses: actions/checkout@v5
+        with:
+          repository: WKDSteve/filetree.nvim
+          path: filetree.nvim
+          ref: 978f8ddd5ff37d38032b6c2f24e68d922595dab8
+      - uses: actions/checkout@v5
+        with:
+          repository: WKDSteve/gitsuite.nvim
+          path: gitsuite.nvim
+          ref: 96e08aa0417fa12e891402871de76cba80923399
       - uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
@@ -101,6 +120,12 @@ jobs:
           repository: WKDSteve/lib.nvim
           path: lib.nvim
           ref: ci-verified
+      # ui.nvim: a dependency of the suite since the test sheets press its real dialogs.
+      - uses: actions/checkout@v5
+        with:
+          repository: WKDSteve/ui.nvim
+          path: ui.nvim
+          ref: ci-verified
       # explorer_integration_spec.lua's own subject: exercises ops/file.lua's
       # explorer-refresh code path against REAL neo-tree.nvim/nvim-tree.lua
       # instances, not just the `package.loaded[...]`-guarded no-op the rest
@@ -157,9 +182,11 @@ jobs:
           exec > >(tee -a "$RUNNER_TEMP/test-output.log") 2>&1
           # --strict: here a skip means the explorer checkouts were not found,
           # which must be red, not a quiet pass of the one spec this job is for.
+          # --file: that one spec. The rest ran in the matrix above, and a test sheet that
+          # needs Windows or a checkout this job does not have is a skip, which --strict refuses.
           # --guard state=off: --strict would turn the state guard's warnings (one
           # shared editor, isolated = "none", see .testing.lua) into failures.
-          bash scripts/test.sh --strict --guard state=off --json "$RUNNER_TEMP/testing-ir.json"
+          bash scripts/test.sh --strict --guard state=off --file explorer_integration --json "$RUNNER_TEMP/testing-ir.json"
       # The IR is what a reporter or a person reads to find out WHICH case failed on WHICH platform.
       - uses: actions/upload-artifact@v7
         if: failure()

@@ -18,3 +18,8 @@ ignore = {
 files["TESTS/**"] = {
   ignore = { "631", "211" },
 }
+
+-- The test sheets' spec is busted style on purpose (TESTS/sheets_spec.lua).
+files["TESTS/sheets_spec.lua"] = {
+  std = "+busted",
+}

@@ -25,7 +25,7 @@ cd "$(dirname "$0")/.."
 ROOT="$(pwd)"
 
 # The runner first, then what the project needs (this list is the `deps` of .testing.lua).
-DEPS=('testing.nvim' 'lib.nvim')
+DEPS=('testing.nvim' 'lib.nvim' 'ui.nvim')
 
 # `ci`: a missing nvim, runner or dependency is infrastructure (exit 3, as `testing ci` reports it), not a failed step
 FAIL_CODE=1

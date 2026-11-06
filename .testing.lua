@@ -7,10 +7,10 @@ return {
   plugin = "fileops",
   -- How the spec files are run: "auto" = sniffed per file, "h" = on the project's own TESTS/harness.lua,
   -- "script" = a self-running script in its own process.
-  dialect = "h",
+  dialect = { ["TESTS/sheets_spec.lua"] = "busted", ["*"] = "h" },
   -- Dependencies (directory names) put on the runtimepath: $<NAME>_DIR, .deps/<name>, ../<name>,
   -- stdpath('data')/lazy/<name>.
-  deps = { "lib.nvim" },
+  deps = { "lib.nvim", "ui.nvim" },
   -- "none" = all specs in one nvim, "file" = one nvim per spec file
   -- (nothing leaks from one file into the next).
   isolated = "none",
@@ -48,21 +48,13 @@ return {
       -- Deliberate negative probe: git_spec/autocmds_spec aim the git probe at a command that does not
       -- exist to prove the failure path stays silent.
       "fileops-no-such-git-executable",
+      -- sheets_spec.lua: every test sheet (TESTS/sheets/) runs in a child editor.
+      "nvim",
     },
   },
   -- The runner counts which commands, keymaps and autocommands the specs exercise (docs/SURFACE.md of testing.nvim);
   -- `scripts/test.sh surface` compares that with surface.baseline.json (a regression gate, not a percentage).
   surface = { track = true },
   -- gated: a failed conformance check makes `scripts/test.sh conformance` exit 1 (docs/CONFORMANCE.md of testing.nvim)
-  conformance = {
-    gate = true,
-    waivers = {
-      {
-        check = "K1",
-        file = "lua/fileops/integrations/menu.lua",
-        reason = "a hard dependency on ui.contextmenu for hosts that build a ui.nvim menu; ui.nvim is not a dependency of this suite (TESTS/README.md)",
-        expires = "2027-04-14",
-      },
-    },
-  },
+  conformance = { gate = true },
 }

@@ -114,6 +114,7 @@ local specs = {
   "install_spec_spec.lua",
   "testing_config_spec.lua",
   "harness_spec.lua",
+  "sheets_spec.lua",
 }
 
 local failed = 0
