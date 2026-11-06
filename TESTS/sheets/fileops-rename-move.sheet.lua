@@ -50,6 +50,16 @@ return {
     { keys = "u", note = "undo further" },
     { expect = [[_G.text() ~= "three"]], note = "the history survives a rename too" },
 
+    -- neither form asks about unsaved text, with or without `!`: it is written
+    { lua = [[vim.cmd("silent! redo"); vim.api.nvim_buf_set_lines(0, 0, -1, false, { "five" })]] },
+    { keys = ":File! rename forced.lua<CR>" },
+    { expect = "not _G.dialog()", note = "rename!: no dialog" },
+    { expect = [[_G.get("src/deep/other/forced.lua"):find("five", 1, true)]], note = "written" },
+    { lua = [[vim.api.nvim_buf_set_lines(0, 0, -1, false, { "six" })]] },
+    { keys = ":File! move forced2.lua<CR>" },
+    { expect = "not _G.dialog()", note = "move!: no dialog" },
+    { expect = [[_G.get("src/deep/other/forced2.lua"):find("six", 1, true)]], note = "written" },
+
     -- from a buffer without a file there is nothing to rename
     { keys = ":enew<CR>" },
     { keys = ":File rename x.lua<CR>" },
