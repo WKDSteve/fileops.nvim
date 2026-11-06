@@ -123,12 +123,24 @@ local function spec(H)
   -- uncaught error instead of a completed report. Simulate that environment
   -- via `package.preload` (the module can't actually be uninstalled from
   -- this process, since other specs need the real one).
+  --
+  -- `fileops.config` is unloaded with it: it requires lib.nvim too, and on a
+  -- real install without the library that require crashed the whole check
+  -- before it got to say so (found by TESTS/sheets/fileops-health-no-lib).
   do
     local composer_mod = "lib.nvim.bindings.usercmd.composer"
+    local config_lib_mod = "lib.lua.config"
     local real_composer = package.loaded[composer_mod]
+    local real_config_lib = package.loaded[config_lib_mod]
+    local real_config = package.loaded["fileops.config"]
     package.loaded[composer_mod] = nil
     package.preload[composer_mod] = function()
       error("module '" .. composer_mod .. "' not found (simulated)")
+    end
+    package.loaded[config_lib_mod] = nil
+    package.loaded["fileops.config"] = nil
+    package.preload[config_lib_mod] = function()
+      error("module '" .. config_lib_mod .. "' not found (simulated)")
     end
 
     local report = {}
@@ -153,6 +165,9 @@ local function spec(H)
     vim.health = real_health
     package.loaded[composer_mod] = real_composer
     package.preload[composer_mod] = nil
+    package.loaded[config_lib_mod] = real_config_lib
+    package.preload[config_lib_mod] = nil
+    package.loaded["fileops.config"] = real_config
 
     ok(
       health_ok,

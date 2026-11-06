@@ -61,12 +61,17 @@ function M.check()
   end
 
   -- config validation from the last setup() call (unknown keys, rejected values)
-  local cfg_issues = require("fileops.config").issues()
-  if #cfg_issues == 0 then
-    ok("config: no unknown/invalid options from the last setup() call")
-  else
-    for _, issue in ipairs(cfg_issues) do
-      warn("config: " .. issue)
+  -- `fileops.config` needs lib.nvim itself: without it there is no config to
+  -- report on, and the missing library is reported further down.
+  local has_config, config = pcall(require, "fileops.config")
+  if has_config then
+    local cfg_issues = config.issues()
+    if #cfg_issues == 0 then
+      ok("config: no unknown/invalid options from the last setup() call")
+    else
+      for _, issue in ipairs(cfg_issues) do
+        warn("config: " .. issue)
+      end
     end
   end
 
