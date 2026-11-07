@@ -246,6 +246,28 @@ local function spec(H)
     eq(seen_ok, true, "diagnose_lock reports success once lib.nvim answered")
     eq(seen_msg, "line one\nline two", "diagnose_lock joins the report lines")
 
+    -- A holder called nvim is explained, another holder or a path that names nvim is not.
+    local hint = "leaked watcher"
+    for _, case in ipairs({
+      { "  pid 42  nvim.exe  [Neovim]", true },
+      { "  pid 42  nvim  [nvim]", true },
+      { "  pid 42  nvim-qt.exe  [nvim-qt]", false },
+      { "  pid 42  Code.exe  [nvim]", false },
+      { "path:   C:/pid 42 nvim/x.txt", false },
+    }) do
+      local with_holder = H.stub("lib.nvim.cross.fs.lock", {
+        report = function(_, report_cb)
+          report_cb({ case[1] })
+        end,
+      })
+      local text
+      file.diagnose_lock(function(_, m)
+        text = m
+      end)
+      with_holder()
+      eq(text:find(hint, 1, true) ~= nil, case[2], "lock report hint for: " .. case[1])
+    end
+
     -- An explicit path wins over the buffer's file.
     local other = dir .. "other.txt"
     H.write_file(other, "x")

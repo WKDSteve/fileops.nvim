@@ -859,6 +859,18 @@ function M.diagnose_lock(cb, path)
   end
 
   lock.report(path, function(lines)
+    -- lib.nvim names the holder; what a holder called `nvim` means is fileops's
+    -- own knowledge (docs/WORKFLOW.md), so the hint is added here.
+    for _, line in ipairs(lines) do
+      if line:lower():match("^%s*pid%s+%d+%s+nvim%f[^%w_-]") then
+        lines[#lines + 1] = ""
+        lines[#lines + 1] =
+          "holder nvim: not an open buffer (Neovim keeps only the swap file open)."
+        lines[#lines + 1] = "It is a leaked watcher, such as neo-tree's: no retry outwaits it,"
+        lines[#lines + 1] = "close the watcher or restart that Neovim."
+        break
+      end
+    end
     cb(true, table.concat(lines, "\n"))
   end)
 end
