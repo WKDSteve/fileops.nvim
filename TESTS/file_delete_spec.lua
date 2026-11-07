@@ -276,6 +276,27 @@ local function spec(H)
 
     restore()
 
+    -- The hint reads lib.nvim's rendered holder line, so the line it matches must be the one
+    -- lib.nvim really writes: the real report, only the slow holder lookup stubbed (lib.nvim
+    -- lists holders on Windows only).
+    if fn.has("win32") == 1 then
+      local lock = require("lib.nvim.cross.fs.lock")
+      local real_who = lock.who
+      lock.who = function(_, who_cb)
+        who_cb({ { pid = 42, name = "nvim", app = "nvim" } }, nil)
+      end
+      local text
+      local rok, rerr = pcall(file.diagnose_lock, function(_, m)
+        text = m
+      end, other)
+      lock.who = real_who
+      ok(rok, tostring(rerr))
+      ok(
+        text ~= nil and text:find(hint, 1, true) ~= nil,
+        "lib.nvim's own holder line gets the hint"
+      )
+    end
+
     vim.cmd("enew")
     local nok, nmsg
     file.diagnose_lock(function(o, m)
