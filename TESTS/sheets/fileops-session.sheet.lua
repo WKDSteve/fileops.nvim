@@ -4,7 +4,7 @@
 return {
   id = "fileops.session",
   title = "fileops.nvim: session_compat resaves the active session, and only that",
-  task = "fileops.nvim/testblatt-bindings-checkliste",
+  task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   steps = {

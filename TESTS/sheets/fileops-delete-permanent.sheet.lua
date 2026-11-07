@@ -3,7 +3,7 @@
 return {
   id = "fileops.delete-permanent",
   title = 'fileops.nvim: delete.mode = "permanent" goes around the trash',
-  task = "fileops.nvim/testblatt-bindings-checkliste",
+  task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   steps = {

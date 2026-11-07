@@ -86,7 +86,7 @@ end
 return {
   id = "fileops.cycle-keys",
   title = "fileops.nvim: the eight cycle keys, each with its own target",
-  task = "fileops.nvim/testblatt-bindings-checkliste",
+  task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   steps = steps,

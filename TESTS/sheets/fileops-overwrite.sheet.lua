@@ -77,7 +77,7 @@ steps[#steps + 1] = { expect = [[_G.here() == "c2.txt" and _G.get("c2.txt") == "
 return {
   id = "fileops.overwrite",
   title = "fileops.nvim: rename, move, duplicate and copy onto an existing destination",
-  task = "fileops.nvim/testblatt-bindings-checkliste",
+  task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   steps = steps,

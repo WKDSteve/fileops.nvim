@@ -91,7 +91,7 @@ steps[#steps + 1] = { wait = [[_G.here() == "r.txt"]], note = "rename: the typed
 return {
   id = "fileops.prompts",
   title = "fileops.nvim: a missing path prompts, a cancel is silent, rename completes from the buffer",
-  task = "fileops.nvim/testblatt-bindings-checkliste",
+  task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   steps = steps,

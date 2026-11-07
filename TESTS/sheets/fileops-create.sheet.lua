@@ -4,7 +4,7 @@
 return {
   id = "fileops.create",
   title = "fileops.nvim: :File touch, new, write, saveas, writeto, mkdir resolve against the cwd",
-  task = "fileops.nvim/testblatt-bindings-checkliste",
+  task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   steps = {

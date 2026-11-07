@@ -4,7 +4,7 @@
 return {
   id = "fileops.health",
   title = "fileops.nvim: :checkhealth fileops, config hardening",
-  task = "fileops.nvim/testblatt-bindings-checkliste",
+  task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   steps = {

@@ -5,7 +5,7 @@
 return {
   id = "fileops.cycle",
   title = "fileops.nvim: :File next, prev, first, last, open",
-  task = "fileops.nvim/testblatt-bindings-checkliste",
+  task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   steps = {

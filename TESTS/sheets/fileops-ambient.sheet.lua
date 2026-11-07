@@ -4,7 +4,7 @@
 return {
   id = "fileops.ambient",
   title = "fileops.nvim: auto_mkdir, conflict markers without gitsuite, events, on_hold off",
-  task = "fileops.nvim/testblatt-bindings-checkliste",
+  task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   steps = {

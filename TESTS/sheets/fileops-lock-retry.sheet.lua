@@ -5,7 +5,7 @@
 return {
   id = "fileops.lock-retry",
   title = "fileops.nvim: a real sharing violation is retried and explained (Windows)",
-  task = "fileops.nvim/testblatt-bindings-checkliste",
+  task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   requires = {

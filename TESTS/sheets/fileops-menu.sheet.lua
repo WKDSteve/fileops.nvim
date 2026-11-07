@@ -4,7 +4,7 @@
 return {
   id = "fileops.menu",
   title = "fileops.nvim: the File fly-out of ui.nvim's menu",
-  task = "fileops.nvim/testblatt-bindings-checkliste",
+  task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   steps = {

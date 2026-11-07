@@ -4,7 +4,7 @@
 return {
   id = "fileops.health-no-lib",
   title = "fileops.nvim: :checkhealth fileops without lib.nvim",
-  task = "fileops.nvim/testblatt-bindings-checkliste",
+  task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   steps = {
