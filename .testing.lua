@@ -16,6 +16,9 @@ return {
   isolated = "none",
   -- Guards (docs/GUARDS.md of testing.nvim). All are clean on this suite and therefore "error": a new
   -- finding turns the run red.
+  -- sheets_spec.lua runs every test sheet in a child editor of its own: far more than the default 10 s and 60 s
+  -- on a machine under load.
+  timeouts = { case_ms = 30000, file_ms = 300000 },
   guards = {
     fs = {
       mode = "error",
