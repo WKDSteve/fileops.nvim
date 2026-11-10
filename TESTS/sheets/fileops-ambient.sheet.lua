@@ -45,6 +45,10 @@ return {
       end, vim.fn.getmatches()), { "DiffDelete", "DiffChange", "DiffAdd" })]],
       note = "the three fallback highlights",
     },
+    -- and on the screen: each marker is drawn in its group, the text between them is not
+    { hl = { text = "<<<<<<< HEAD", group = "DiffDelete" }, note = "ours drawn in DiffDelete" },
+    { hl = { text = "=======", group = "DiffChange" }, note = "the separator in DiffChange" },
+    { hl = { text = ">>>>>>> other", group = "DiffAdd" }, note = "theirs in DiffAdd" },
     { keys = ":edit plain.txt<CR>", note = "leaving the window's buffer" },
     { expect = [[#vim.fn.getmatches() == 3]], note = "cleared and set afresh for the new buffer" },
     { keys = ":vsplit<CR>" },
