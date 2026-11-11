@@ -3,6 +3,7 @@
 -- ALL/manual-test-checklists/fileops.md).
 return {
   id = "fileops.session",
+  feature = "fileops.session",
   title = "fileops.nvim: session_compat resaves the active session, and only that",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

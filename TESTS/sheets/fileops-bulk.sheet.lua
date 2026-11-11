@@ -3,6 +3,7 @@
 -- 7 of ALL/manual-test-checklists/fileops.md).
 return {
   id = "fileops.bulk",
+  feature = "fileops.bulk",
   title = "fileops.nvim: :File bulk rename",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

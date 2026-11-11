@@ -3,6 +3,7 @@
 -- ALL/manual-test-checklists/fileops.md).
 return {
   id = "fileops.rename-move",
+  feature = "fileops.rename-move",
   title = "fileops.nvim: :File rename and :File move",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

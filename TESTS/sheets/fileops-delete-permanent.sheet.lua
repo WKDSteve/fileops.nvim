@@ -2,6 +2,7 @@
 -- fileops.nvim/testblatt-bindings-checkliste; section 3 of ALL/manual-test-checklists/fileops.md).
 return {
   id = "fileops.delete-permanent",
+  feature = "fileops.delete",
   title = 'fileops.nvim: delete.mode = "permanent" goes around the trash',
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

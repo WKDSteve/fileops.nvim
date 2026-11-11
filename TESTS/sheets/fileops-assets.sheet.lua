@@ -4,6 +4,7 @@
 -- other sheet's runtimepath. The OS trash is stubbed (TESTS/sheets/_helpers.lua).
 return {
   id = "fileops.assets",
+  feature = "fileops.assets",
   title = "fileops.nvim: cascade-delete orphaned assets through filetree.nvim's refs engine",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

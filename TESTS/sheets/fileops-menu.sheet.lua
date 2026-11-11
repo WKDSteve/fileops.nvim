@@ -3,6 +3,7 @@
 -- menu is built by the host and opened through its own entry point.
 return {
   id = "fileops.menu",
+  feature = "fileops.menu",
   title = "fileops.nvim: the File fly-out of ui.nvim's menu",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

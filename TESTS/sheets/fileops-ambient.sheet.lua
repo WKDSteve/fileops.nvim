@@ -3,6 +3,7 @@
 -- ALL/manual-test-checklists/fileops.md). gitsuite.nvim is not on this sheet's runtimepath.
 return {
   id = "fileops.ambient",
+  feature = "fileops.ambient",
   title = "fileops.nvim: auto_mkdir, conflict markers without gitsuite, events, on_hold off",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

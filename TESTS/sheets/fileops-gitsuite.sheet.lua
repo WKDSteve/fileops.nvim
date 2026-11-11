@@ -4,6 +4,7 @@
 -- gitsuite.nvim is a CI checkout beside this repo and on no other sheet's runtimepath.
 return {
   id = "fileops.gitsuite",
+  feature = "fileops.gitsuite",
   title = "fileops.nvim: conflict markers and explorer refresh with the real gitsuite.nvim",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

@@ -2,6 +2,7 @@
 -- fileops.nvim/testblatt-bindings-checkliste; section 12 of ALL/manual-test-checklists/fileops.md).
 return {
   id = "fileops.config-bad",
+  feature = "fileops.config-check",
   title = "fileops.nvim: bad options are reported and dropped, the defaults apply",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

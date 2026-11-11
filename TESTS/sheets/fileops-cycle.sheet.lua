@@ -4,6 +4,7 @@
 -- sets.
 return {
   id = "fileops.cycle",
+  feature = "fileops.cycle",
   title = "fileops.nvim: :File next, prev, first, last, open",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

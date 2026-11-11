@@ -3,6 +3,7 @@
 -- clipboard is stubbed (TESTS/sheets/_helpers.lua).
 return {
   id = "fileops.info",
+  feature = "fileops.info",
   title = "fileops.nvim: :File path, cd, info, help",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

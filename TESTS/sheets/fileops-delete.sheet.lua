@@ -111,6 +111,7 @@ steps[#steps + 1] = { lua = [[_G.veto = false]] }
 
 return {
   id = "fileops.delete",
+  feature = "fileops.delete",
   title = "fileops.nvim: :File delete and <leader>dcf, confirm, cancel, hook, forced",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

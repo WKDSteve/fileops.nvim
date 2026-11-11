@@ -3,6 +3,7 @@
 -- ALL/manual-test-checklists/fileops.md).
 return {
   id = "fileops.lockinfo-free",
+  feature = "fileops.lockinfo",
   title = "fileops.nvim: :File lockinfo on a free file",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

@@ -85,6 +85,7 @@ end
 
 return {
   id = "fileops.cycle-keys",
+  feature = "fileops.cycle",
   title = "fileops.nvim: the eight cycle keys, each with its own target",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

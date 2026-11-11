@@ -76,6 +76,7 @@ steps[#steps + 1] = { expect = [[_G.here() == "c2.txt" and _G.get("c2.txt") == "
 
 return {
   id = "fileops.overwrite",
+  feature = "fileops.overwrite",
   title = "fileops.nvim: rename, move, duplicate and copy onto an existing destination",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

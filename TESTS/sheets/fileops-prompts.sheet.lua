@@ -90,6 +90,7 @@ steps[#steps + 1] = { wait = [[_G.here() == "r.txt"]], note = "rename: the typed
 
 return {
   id = "fileops.prompts",
+  feature = "fileops.command",
   title = "fileops.nvim: a missing path prompts, a cancel is silent, rename completes from the buffer",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",

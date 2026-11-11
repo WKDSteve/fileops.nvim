@@ -3,6 +3,7 @@
 -- section 1 of ALL/manual-test-checklists/fileops.md).
 return {
   id = "fileops.create",
+  feature = "fileops.create",
   title = "fileops.nvim: :File touch, new, write, saveas, writeto, mkdir resolve against the cwd",
   task = "fileops.nvim/manual-checklist-run",
   engine = "rpc",
