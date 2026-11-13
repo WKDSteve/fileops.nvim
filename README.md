@@ -70,3 +70,20 @@ each page answers.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+<!-- connections:begin (written by the app-icons tool of the workshop; change integrations.json there, not this block) -->
+## Connections
+
+![fileops.nvim: what it uses and what uses it](assets/graphs/fileops.nvim.png)
+
+**Uses**
+
+- [filetree.nvim](https://github.com/WKDSteve/filetree.nvim): When `:File delete` removes a file, fileops.nvim asks the reference engine of filetree.nvim (`filetree.refs`) whether it links to orphaned assets and offers to delete those too, if `refs.outgoing_assets` is on there. ([picture](assets/graphs/pair/fileops.nvim--filetree.nvim.png))
+- [gitsuite.nvim](https://github.com/WKDSteve/gitsuite.nvim): The conflict marks of fileops.nvim use the conflict feature of gitsuite.nvim (`gitsuite.features.conflict`) when it is installed. ([picture](assets/graphs/pair/fileops.nvim--gitsuite.nvim.png))
+- [ui.nvim](https://github.com/WKDSteve/ui.nvim): fileops.nvim confirms a delete and asks for a filter with the kit of ui.nvim (`ui.kit.confirm`, `ui.kit.input`). ([picture](assets/graphs/pair/fileops.nvim--ui.nvim.png))
+- [lib.nvim](https://github.com/WKDSteve/lib.nvim): the shared base of the plugins.
+
+**Used by**
+
+- [pickers.nvim](https://github.com/WKDSteve/pickers.nvim): The browse mode of pickers.nvim uses the file operations of fileops.nvim (`fileops.ops.file`) when it is installed. ([picture](assets/graphs/pair/pickers.nvim--fileops.nvim.png))
+<!-- connections:end -->
