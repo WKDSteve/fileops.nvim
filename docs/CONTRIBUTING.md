@@ -71,8 +71,9 @@ Work in a scratch directory. Several subcommands delete files.
 `TESTS/` is a headless spec suite run by
 [testing.nvim](https://github.com/WKDSteve/testing.nvim): each `*_spec.lua`
 returns a function that receives the shared harness (`TESTS/harness.lua`), and
-the run order is the `specs` list in `TESTS/run.lua` (read by testing.nvim,
-never executed — new specs go there too). Run it from the repo root with
+the `specs` list in `TESTS/run.lua` is the order hint testing.nvim reads (never
+executed, and no spec depends on the order — new specs go there too). Run it
+from the repo root with
 
 ```sh
 bash scripts/test.sh

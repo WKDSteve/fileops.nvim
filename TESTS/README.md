@@ -96,7 +96,7 @@ another with respect to them.
 | File | Covers |
 | --- | --- |
 | `harness.lua` | The assertions and helpers above. |
-| `run.lua` | Legacy runner, no longer executed; its `specs` list fixes the spec order for testing.nvim. |
+| `run.lua` | Legacy runner, no longer executed; testing.nvim reads its `specs` list as an order hint (no spec depends on the order). |
 | `minimal_init.lua` | Puts this repo, testing.nvim and lib.nvim on the runtimepath for isolated child runs; fails loudly (all four searched places) when one is missing. |
 | `config_spec.lua` | `config/`: defaults, deep merge, the deliberately unset keymaps. |
 | `notify_spec.lua` | `util/notify.lua`: the prefix, the levels, and `report()`'s relay contract. |

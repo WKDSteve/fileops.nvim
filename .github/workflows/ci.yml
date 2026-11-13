@@ -174,11 +174,11 @@ jobs:
           ref: ci-verified
       - name: Run TESTS suite (with explorer deps on rtp)
         working-directory: fileops.nvim
-        # Explicit locations: the spec's own sibling lookup resolves the repo
-        # root one directory too high (three `:h` on a path that already ends
-        # in `TESTS/`), so the checkouts next to this repo are never found
-        # that way and this job used to skip the spec silently. The env
-        # override is the lookup that works.
+        # Explicit locations: the env override is the first place the spec's
+        # lookup checks, so the job does not depend on where the checkouts
+        # lie. (The spec's sibling lookup once resolved the repo root one
+        # directory too high and this job skipped the spec silently; that is
+        # fixed since a261dfa, the override stays as the explicit form.)
         env:
           NEO_TREE_NVIM_DIR: ${{ github.workspace }}/neo-tree.nvim
           NVIM_TREE_LUA_DIR: ${{ github.workspace }}/nvim-tree.lua
