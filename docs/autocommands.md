@@ -21,9 +21,20 @@ On `CursorHold`/`CursorHoldI`, previews what changed on the current line:
 prefers gitsigns' inline hunk preview when available, otherwise falls back to
 showing the previous committed content of the line as virtual text (via
 `git blame`/`git show`, argv-only — no shell). Per-window throttled, mode-aware
-(`on_hold.modes`), and cleared on the next cursor move. Sets
-`vim.o.updatetime = 100` when enabled, matching the responsiveness the
-fallback preview needs.
+(`on_hold.modes`), and cleared on the next cursor move.
+
+`'updatetime'` is global, and every `CursorHold` user follows it. When enabled,
+`on_hold` lowers it to 100 ms only while it is still Neovim's default (4000), so
+the preview comes promptly in a config that never chose a value; a value you
+(or another plugin) set is left alone and never raised. To have the preview
+sooner than your own value, lower `'updatetime'` yourself; `on_hold.delay` adds
+to it.
+
+Runs beside hover.nvim, which also opens on `CursorHold`: hover's float sits
+under the line, the `previous: ...` virtual text at its end, neither closes the
+other, and the next move clears both (checked in hover.nvim's test sheet
+`hover.fileops-on-hold`). With the default `'updatetime'` lowered as above,
+hover opens 100 ms plus its own `delay_ms` after the cursor stops.
 
 Gated by `config.on_hold.enable` (default `false` — opt-in). Enable it:
 

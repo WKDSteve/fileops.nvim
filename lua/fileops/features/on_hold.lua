@@ -336,6 +336,27 @@ local function effective_events(modes, events_override)
   return ev
 end
 
+---@type integer  'updatetime' this feature wants: CursorHold after 100 ms.
+local UPDATETIME_MS = 100
+
+---@internal
+---Lower 'updatetime' so CursorHold fires promptly -- but only while it is
+---still Neovim's default. 'updatetime' is global and every CursorHold user
+---follows it (hover.nvim opens after it plus its own delay), so a value
+---someone chose (the user, or another plugin) stays as it is; and it is never
+---raised. It used to be set to 100 unconditionally.
+---@return nil
+local function lower_updatetime()
+  local default = 4000
+  local ok, info = pcall(api.nvim_get_option_info2, "updatetime", {})
+  if ok and type(info) == "table" and type(info.default) == "number" then
+    default = info.default
+  end
+  if vim.o.updatetime == default and default > UPDATETIME_MS then
+    vim.o.updatetime = UPDATETIME_MS
+  end
+end
+
 ---Register the CursorHold/CursorHoldI line-diff preview autocmds if enabled.
 ---@param cfg FileOps.OnHoldConfig
 ---@return nil
@@ -358,8 +379,7 @@ function M.setup(cfg)
     return gen_by_win[win]
   end
 
-  -- Lower updatetime so CursorHold fires promptly for this feature.
-  vim.o.updatetime = 100
+  lower_updatetime()
 
   local events = effective_events(cfg.modes, cfg.events_override)
 

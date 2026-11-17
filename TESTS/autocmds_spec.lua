@@ -228,6 +228,15 @@ local function spec(H)
     eq(#autocmds_of("fileops_on_hold_preview"), 0, "on_hold = false registers nothing")
     eq(vim.o.updatetime, prev_updatetime, "…and does not touch 'updatetime' either")
 
+    -- 'updatetime' is global: lowered only while it is Neovim's default, and
+    -- a value someone set stays.
+    vim.o.updatetime = 1500
+    on_hold.setup({ enable = true, modes = "n" })
+    eq(vim.o.updatetime, 1500, "on_hold keeps an 'updatetime' that was set")
+    vim.o.updatetime = 50
+    on_hold.setup({ enable = true, modes = "n" })
+    eq(vim.o.updatetime, 50, "…and never raises it")
+    vim.o.updatetime = 4000
     on_hold.setup({ enable = true, modes = "n" })
     eq(
       table.concat(events_of("fileops_on_hold_preview"), ","),
@@ -239,7 +248,11 @@ local function spec(H)
       "ModeChanged",
       "…plus a ModeChanged autocmd that aborts a pending preview"
     )
-    eq(vim.o.updatetime, 100, "on_hold lowers 'updatetime' so CursorHold fires promptly")
+    eq(
+      vim.o.updatetime,
+      100,
+      "on_hold lowers the default 'updatetime' so CursorHold fires promptly"
+    )
 
     on_hold.setup({ enable = true, modes = "i" })
     eq(
