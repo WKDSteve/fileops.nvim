@@ -157,11 +157,15 @@ local function spec(H)
   eq(vim.fn.filereadable(nested), 1, "touch: nested file exists")
 
   -- delete_current: on_before_delete returning false aborts before disk/buffer
-  -- are touched; default mode ("permanent"/unset) actually deletes.
+  -- are touched; returning true proceeds. `mode = "permanent"` on purpose: an
+  -- unset mode means "trash", which would hand the fixture to the real OS
+  -- trash (PowerShell / `gio trash`; the latter refuses /tmp in WSL). The
+  -- trash path itself is covered by file_delete_spec with a stub.
   local vetoed = dir .. "vetoed.lua"
   H.write_file(vetoed, "keep me")
   local vbuf = H.edit(vetoed)
   local dok1, dmsg1 = file.delete_current({
+    mode = "permanent",
     on_before_delete = function()
       return false
     end,
@@ -175,6 +179,7 @@ local function spec(H)
   H.edit(deletable)
   local seen_path = nil
   local dok2, dmsg2 = file.delete_current({
+    mode = "permanent",
     on_before_delete = function(p)
       seen_path = p
       return true
@@ -251,7 +256,10 @@ local function spec(H)
   eq(#seen, 2, "rename fired a second FileopsChanged event")
   eq(seen[2].action, "rename", "rename event action is 'rename'")
 
-  ok(file.delete_current({ force = true }), "delete_current (for event test) succeeds")
+  ok(
+    file.delete_current({ force = true, mode = "permanent" }),
+    "delete_current (for event test) succeeds"
+  )
   eq(#seen, 3, "delete fired a third FileopsChanged event")
   eq(seen[3].action, "delete", "delete event action is 'delete'")
 

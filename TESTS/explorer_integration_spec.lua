@@ -80,7 +80,8 @@ local function spec(H)
   local rok, rmsg = file.rename("probe_renamed.txt")
   ok(rok, "rename against real explorers: " .. tostring(rmsg))
 
-  local dok, dmsg = file.delete_current({ force = true })
+  -- Permanent: the explorers are under test here, not the OS trash.
+  local dok, dmsg = file.delete_current({ force = true, mode = "permanent" })
   ok(dok, "delete against real explorers: " .. tostring(dmsg))
 end
 
