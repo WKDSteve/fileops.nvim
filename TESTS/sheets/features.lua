@@ -83,6 +83,9 @@ return {
     id = "fileops.lock-retry",
     title = "A sharing violation on Windows is retried and, when it stays, explained",
     surface = { "config:retry" },
+    -- Its sheet fileops.lock-retry is Windows-only (`requires`), so it names no feature: a feature sheet that skips
+    -- is red on Linux/macOS CI. The retry itself starts no process; the holder the sheet starts is its preparation.
+    perf = "skip:starts no process; its Windows-only sheet fileops.lock-retry runs under testing perf all the same",
     docs = "docs/FEATURES/SAFETY.md",
   },
   {
@@ -94,7 +97,13 @@ return {
   {
     id = "fileops.ambient",
     title = "On its own: a missing directory is created on save, conflict markers light up, changes raise an event",
-    surface = { "config:auto_mkdir", "config:on_hold" },
+    surface = { "config:auto_mkdir" },
+    docs = "docs/FEATURES/AUTOCMDS.md",
+  },
+  {
+    id = "fileops.on-hold",
+    title = "With on_hold, resting the cursor on a changed line shows how it was committed",
+    surface = { "config:on_hold" },
     docs = "docs/FEATURES/AUTOCMDS.md",
   },
   {
@@ -115,6 +124,7 @@ return {
   {
     id = "fileops.which-key",
     title = "The <leader>n and <leader>p groups carry their labels in which-key",
+    perf = "skip:starts no process (two group labels handed to which-key)",
     docs = "docs/FEATURES/INTEGRATIONS.md",
   },
   {

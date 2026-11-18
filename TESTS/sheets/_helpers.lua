@@ -178,6 +178,29 @@ function _G.listed(rel)
   return nr ~= -1 and vim.bo[nr].buflisted
 end
 
+---Run git in the sandbox, blocking: the sheet's preparation (a frame below TESTS/), never the plugin's start.
+---@param ... string  git arguments.
+---@return table  vim.system's completed object.
+function _G.git(...)
+  local res = vim.system({ "git", ... }, { cwd = _G.root, text = true }):wait()
+  assert(res.code == 0, "git " .. table.concat({ ... }, " ") .. ": " .. (res.stderr or ""))
+  return res
+end
+
+---Make the sandbox a git repository with `files` (rel path -> text) committed.
+---@param files table<string, string>
+function _G.repo(files)
+  _G.git("init", "-q")
+  _G.git("config", "user.name", "Sheet")
+  _G.git("config", "user.email", "sheet@example.com")
+  _G.git("config", "commit.gpgsign", "false")
+  for rel, text in pairs(files) do
+    _G.put(rel, text)
+  end
+  _G.git("add", "-A")
+  _G.git("commit", "-q", "-m", "init")
+end
+
 ---Take a dependency off the runtimepath (for a sheet about an install without it).
 ---@param tail string  Directory name, e.g. "ui.nvim".
 function _G.drop_rtp(tail)
