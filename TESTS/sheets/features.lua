@@ -21,6 +21,12 @@ return {
     docs = "docs/FEATURES/OPERATIONS.md",
   },
   {
+    id = "fileops.save",
+    title = ":File save writes the buffer; a [No Name] buffer asks for a name and a folder below the cwd",
+    surface = { "command:File save" },
+    docs = "docs/commands.md",
+  },
+  {
     id = "fileops.rename-move",
     title = ":File rename and :File move change the file on disk and the buffer pointing at it together",
     surface = { "command:File rename", "command:File move" },
