@@ -34,19 +34,44 @@ local function kit()
   return M._kit or require("lib.nvim.ui.kit")
 end
 
+---How many folder levels below the cwd the selection lists. A cwd that holds
+---many projects (a repos root) would otherwise be walked to the bottom before
+---the list opens; anything deeper is one "Enter path manually…" away.
+local MAX_DEPTH = 3
+
+---@internal
+---The walk's `ignore` predicate for `root`: dot folders, the usual
+---build/vendor folders, and everything deeper than `MAX_DEPTH`.
+---@param root string
+---@return fun(abs_path: string, is_dir: boolean): boolean
+function M.__ignore(root)
+  local skip = require("lib.nvim.fs.collect_recursive").skip({ hidden = false })
+  local base = #(root:gsub("[\\/]+$", "")) + 1
+  return function(abs_path, is_dir)
+    if skip(abs_path, is_dir) then
+      return true
+    end
+    local _, depth = abs_path:sub(base + 1):gsub("[\\/]+", "")
+    return depth >= MAX_DEPTH
+  end
+end
+
 ---@internal
 ---All folders below `root`, without dot folders and the usual build/vendor
----folders (`lib.nvim.fs.ignore.list`), sorted. Non-blocking.
+---folders (`lib.nvim.fs.ignore.list`), at most `MAX_DEPTH` levels deep. Non-blocking.
 ---@param root string
 ---@param cb fun(dirs: string[])
 local function list_dirs(root, cb)
   if M._list_dirs then
     return M._list_dirs(root, cb)
   end
-  local walk = require("lib.nvim.fs.collect_recursive")
-  walk.dirs_async(root, { ignore = walk.skip({ hidden = false }) }, function(paths)
-    cb(paths or {})
-  end)
+  require("lib.nvim.fs.collect_recursive").dirs_async(
+    root,
+    { ignore = M.__ignore(root) },
+    function(paths)
+      cb(paths or {})
+    end
+  )
 end
 
 ---@internal
@@ -245,11 +270,14 @@ function M.save(bufnr, on_done)
   if api.nvim_buf_get_name(bufnr) == "" and vim.bo[bufnr].buftype == "" then
     return M.run(bufnr, on_done)
   end
-  api.nvim_buf_call(bufnr, function()
+  local ok, err = pcall(api.nvim_buf_call, bufnr, function()
     vim.cmd("write")
   end)
+  if not ok then
+    require("fileops.util.notify").error("write failed: " .. tostring(err))
+  end
   if on_done then
-    on_done(not vim.bo[bufnr].modified)
+    on_done(ok and not vim.bo[bufnr].modified)
   end
 end
 

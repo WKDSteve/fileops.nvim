@@ -43,8 +43,8 @@ Write the current buffer (`:write`). A buffer without a file name
 1. the file name;
 2. the folder below the cwd to put it in -- the cwd itself is first and
    preselected, then "Enter path manually…" (prefilled with `<cwd>/<name>`)
-   and "Cancel", then every subfolder (dot folders and the usual build and
-   vendor folders left out);
+   and "Cancel", then the subfolders up to three levels deep (dot folders
+   and the usual build and vendor folders left out; deeper ones by hand);
 3. when the file exists already: overwrite or cancel.
 
 A name that already has a folder in it (`notes/todo.md`, `~/x.md`, an

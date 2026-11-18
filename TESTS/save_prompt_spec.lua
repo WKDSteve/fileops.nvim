@@ -228,6 +228,37 @@ local function spec(H)
     ok(api.nvim_buf_get_name(b) ~= "", ":File save: the buffer got its name")
   end
 
+  -- 9. the real walk's filter: dot folders and folders deeper than three
+  --    levels are left out (a repos root as cwd must not be walked to the bottom).
+  do
+    local ignore = sp.__ignore(root)
+    local sep = H.is_windows() and "\\" or "/"
+    local base = (root:gsub("[\\/]+$", ""))
+    local function at(...)
+      return base .. sep .. table.concat({ ... }, sep)
+    end
+    eq(ignore(at("a"), true), false, "walk: level 1 is listed")
+    eq(ignore(at("a", "b", "c"), true), false, "walk: level 3 is listed")
+    eq(ignore(at("a", "b", "c", "d"), true), true, "walk: level 4 is pruned")
+    eq(ignore(at(".git"), true), true, "walk: dot folders are left out")
+    eq(ignore(base .. sep .. sep .. "a", true), false, "walk: a doubled separator is no level")
+  end
+
+  -- 10. a named buffer whose write fails: notified, on_done(false), no raise.
+  do
+    local b = scratch("ten")
+    api.nvim_buf_set_name(b, root .. "/no/such/dir/x.md")
+    local result
+    local seen = H.notifications(function()
+      fileops.save(b, function(saved)
+        result = saved
+      end)
+    end)
+    eq(result, false, "failed write: on_done(false)")
+    ok(H.notified(seen, "write failed"), "failed write: notified")
+    vim.bo[b].modified = false
+  end
+
   sp._kit, sp._list_dirs = nil, nil
   vim.cmd("cd " .. fn.fnameescape(prev_cwd))
 end
