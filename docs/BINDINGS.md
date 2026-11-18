@@ -81,6 +81,7 @@ gated by `config.commands` (a single boolean — there is only one command).
 |---|---|---|
 | `:File new` | `[path]` | Set buffer name (creates parent dirs, no write) |
 | `:File[!] write` | `[path]` | Set buffer name and write to disk |
+| `:File save` | | `:write`; a [No Name] buffer asks for name + folder |
 | `:File[!] saveas` | `[path]` | Save-as, buffer name changes |
 | `:File[!] writeto` | `[path]` | Write a copy, buffer name stays |
 | `:File mkdir` | — | Create parent dirs for current buffer |

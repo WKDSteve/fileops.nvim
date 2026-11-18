@@ -106,6 +106,26 @@ function M.open(opts)
   return notify.report(cycle.open_current(copts))
 end
 
+---Save `bufnr` (default: the current buffer). A buffer with a file name is
+---written (`:write`); a `[No Name]` buffer asks for a file name, then for the
+---folder below the cwd (cwd preselected, a path by hand, or cancel), and
+---confirms before overwriting. `on_done(saved)` is called exactly once.
+---@param bufnr? integer
+---@param on_done? fun(saved: boolean)
+---@return nil
+function M.save(bufnr, on_done)
+  require("fileops.features.save_prompt").save(bufnr, on_done)
+end
+
+---Ask for a name and a folder and save `bufnr` there, even when it already
+---has a file name (the prompt half of `save`). `on_done` as for `save`.
+---@param bufnr? integer
+---@param on_done? fun(saved: boolean)
+---@return nil
+function M.save_as_prompt(bufnr, on_done)
+  require("fileops.features.save_prompt").run(bufnr, on_done)
+end
+
 ---Create a new file (set buffer name + optionally write).
 ---@param path string
 ---@param opts? { write?: boolean, bang?: boolean }

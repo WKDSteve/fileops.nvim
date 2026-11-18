@@ -35,6 +35,22 @@ by default (`session_compat.enable`, see [Configuration](configuration.md)),
 so it doesn't keep pointing at the old path. A no-op when no session is
 active.
 
+## `:File save`
+
+Write the current buffer (`:write`). A buffer without a file name
+(`[No Name]`) asks instead of failing with `E32: No file name`:
+
+1. the file name;
+2. the folder below the cwd to put it in -- the cwd itself is first and
+   preselected, then "Enter path manually…" (prefilled with `<cwd>/<name>`)
+   and "Cancel", then every subfolder (dot folders and the usual build and
+   vendor folders left out);
+3. when the file exists already: overwrite or cancel.
+
+A name that already has a folder in it (`notes/todo.md`, `~/x.md`, an
+absolute path) skips step 2. `<Esc>` at any step cancels silently. From Lua:
+`require("fileops").save(bufnr?, on_done?)`.
+
 ## `:File new [path]`
 
 Set the current buffer's file name to `{path}`. Creates parent directories.

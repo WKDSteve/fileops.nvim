@@ -24,7 +24,7 @@ is a silent no-op. Tab-completion for path arguments resolves against the
 - **Config:** `opts.commands` (default `true`) — master switch for
   registering `:File` at all
 
-- Create/write: `new`, `write`, `saveas`, `writeto`, `mkdir`, `touch`
+- Create/write: `save`, `new`, `write`, `saveas`, `writeto`, `mkdir`, `touch`
 - Mutate: `rename`, `move`, `duplicate`, `copy`, `delete` (git-aware, retrying,
   session-compat, trash-mode opt-in)
 - Navigate: `next`, `prev`, `first`, `last`, `open` (glob filter, recursive

@@ -16,6 +16,7 @@ local delete_confirm = require("fileops.bindings.delete_confirm")
 -- ─── Subcommand catalogue ─────────────────────────────────────────────────────
 
 local SUBCMDS = {
+  "save",
   "new",
   "write",
   "saveas",
@@ -43,6 +44,7 @@ local SUBCMDS = {
 local HELP_TEXT = table.concat({
   ":File[!] {subcommand} [args…]",
   "",
+  "  save                    :write; a [No Name] buffer asks for name + folder",
   "  new {path}              set buffer name (no write)",
   "  write {path}            set buffer name + write (! overwrites)",
   "  saveas {path}           :saveas-equivalent (! overwrites)",
@@ -693,6 +695,9 @@ end
 ---Subcommand name to its handler.
 ---@type table<string, fun(ctx: Fileops.CmdCtx)>
 local HANDLERS = {
+  save = function()
+    require("fileops.features.save_prompt").save()
+  end,
   new = dest_command("File new: ", function(dest, opts)
     return file.edit_new(dest, opts)
   end),
@@ -841,6 +846,7 @@ end
 ---(wording follows docs/BINDINGS.md).
 ---@type table<string, string>
 local ROUTE_DESC = {
+  save = "Write the buffer; a [No Name] buffer asks for a name and a folder",
   new = "Set the buffer name (creates parent dirs, no write)",
   write = "Set the buffer name and write it to disk",
   saveas = "Save as: the buffer name changes",
@@ -957,12 +963,13 @@ end
 
 function M.register()
   composer.verb("File", {
-    desc = "Unified file operations (new/write/saveas/writeto/mkdir/touch/rename/move/duplicate/copy/delete/next/prev/first/last/open/path/info/lockinfo/bulk rename/cd/help)",
+    desc = "Unified file operations (save/new/write/saveas/writeto/mkdir/touch/rename/move/duplicate/copy/delete/next/prev/first/last/open/path/info/lockinfo/bulk rename/cd/help)",
     bang = true,
     count = 0,
     routes = {
       -- The create commands resolve a relative path against the cwd, like `:write`; the
       -- rename family below against the folder of the current file. Without a path they prompt.
+      route("save"),
       route("new", path_arg("Buffer name to set, relative to the cwd (none: prompt)")),
       route("write", path_arg("File to write the buffer to, relative to the cwd (none: prompt)")),
       route("saveas", path_arg("File to save the buffer as, relative to the cwd (none: prompt)")),

@@ -107,6 +107,7 @@ local specs = {
   "autocmds_spec.lua",
   "on_hold_preview_spec.lua",
   "init_api_spec.lua",
+  "save_prompt_spec.lua",
   "health_menu_spec.lua",
   "filetree_assets_spec.lua",
   "explorer_integration_spec.lua",
