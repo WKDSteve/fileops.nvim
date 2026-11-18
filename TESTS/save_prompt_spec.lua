@@ -128,11 +128,6 @@ local function spec(H)
     local typed = root .. "/elsewhere/c.md"
     reset({ input = { "c.md", typed }, select = by_label("Enter path manually…") })
     sp.run(b)
-    -- the path prompt opens on the next loop turn, after the chooser closed
-    eq(calls[3], nil, "manual: the path prompt is not opened from inside the pick")
-    vim.wait(1000, function()
-      return calls[3] ~= nil
-    end)
     eq(calls[3].kind, "input", "manual: asks for a path")
     ok(same(calls[3].default, root .. "/c.md"), "manual: prefilled with <cwd>/<name>")
     eq(fn.readfile(typed)[1], "three", "manual: written where typed (parent dir created)")

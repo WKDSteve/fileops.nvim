@@ -2,6 +2,7 @@
 -- kit's real prompt, chooser and dialog, instead of `:write`'s E32 (task
 -- fileops.nvim/no-name-buffer-schliessen-und-speichern). Rows of the chooser: 1 the cwd
 -- (preselected), 2 "Enter path manually…", 3 "Cancel", then the subfolders sorted.
+-- A key that leads into a typed prompt goes in as `input`: `keys` feeds with `x`, which ends Insert mode again.
 
 local CHOOSER = [[require("lib.nvim.ui.kit.chooser").is_open()]]
 local CLOSED = [[vim.api.nvim_win_get_config(0).relative == "" and not ]] .. CHOOSER
@@ -75,10 +76,10 @@ add({
 add(save_new("three", "c.md"))
 add({
   { wait = CHOOSER },
-  { keys = "j<CR>", note = "the manual-path row" },
+  { input = "j<CR>", note = "the manual-path row" },
   {
     wait = "_G.prompting()",
-    note = "a path prompt opens, in Insert mode (it used to stand in Normal mode)",
+    note = "a path prompt opens, in Insert mode",
   },
   { expect = [[_G.float_text():find("c.md", 1, true) ~= nil]], note = "prefilled with the name" },
   { input = "<C-u>deep/er/c.md<CR>" },

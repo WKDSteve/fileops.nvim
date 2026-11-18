@@ -201,12 +201,7 @@ local function pick_folder(bufnr, name, finish)
         if item.kind == "dir" then
           save_to(bufnr, item.path .. "/" .. name, finish)
         elseif item.kind == "manual" then
-          -- Opened once the chooser has fully closed: opened from inside its
-          -- pick, the prompt stood in Normal mode, where the path typed next
-          -- ran as commands (found by TESTS/sheets/fileops-save.sheet.lua).
-          vim.schedule(function()
-            ask_path(bufnr, cwd .. "/" .. name, finish)
-          end)
+          ask_path(bufnr, cwd .. "/" .. name, finish)
         else
           finish(false)
         end
