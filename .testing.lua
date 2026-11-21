@@ -60,4 +60,57 @@ return {
   surface = { track = true },
   -- gated: a failed conformance check makes `scripts/test.sh conformance` exit 1 (docs/CONFORMANCE.md of testing.nvim)
   conformance = { gate = true },
+  ci = {
+    -- The GitHub workflow, generated: `testing init --workflow=public --force` writes .github/workflows/ci.yml from
+    -- this (testing.nvim docs/WORKFLOW-CI.md); the step workflow-in-sync keeps the two together.
+    workflow = {
+      name = "fileops.nvim",
+      layout = "hosted",
+      -- the steps that depend on the platform: the windows and macOS legs run only these (file operations end to end:
+      -- rename, trash, permissions differ per system)
+      platform = { "suite", "conformance" },
+      -- `testing ci land`: a check branch ci/** runs the hosted legs, main moves to a commit only once it is green there
+      land = true,
+      -- more checkouts below .deps/, not on the runtimepath of the specs
+      checkouts = {
+        {
+          repo = "WKDSteve/filetree.nvim",
+          ref = "ci-verified",
+          why = "only the test sheet fileops.assets loads it (cascade-delete through its refs engine)",
+        },
+        {
+          repo = "WKDSteve/gitsuite.nvim",
+          -- gitsuite.nvim publishes no ci-verified: pinned to the commit of the old workflow; bump deliberately
+          ref = "96e08aa0417fa12e891402871de76cba80923399",
+          why = "only the test sheets fileops.gitsuite and fileops.on-hold-gitsuite load it (conflicts, blame)",
+        },
+        {
+          repo = "nvim-neo-tree/neo-tree.nvim",
+          ref = "162f9b953a692b559afe43e38d60afee81e8e79b",
+          why = "only TESTS/explorer_integration_spec.lua loads it (explorer refresh against a real neo-tree)",
+        },
+        {
+          repo = "nvim-tree/nvim-tree.lua",
+          ref = "8d814495983e8db87d02d2f1da293f25b2fd1bdc",
+          why = "only TESTS/explorer_integration_spec.lua loads it (explorer refresh against a real nvim-tree)",
+        },
+        {
+          repo = "MunifTanjim/nui.nvim",
+          ref = "10fc361835c856ba4233ef5ea135b919bf3dce97",
+          why = "a hard dependency of neo-tree.nvim in TESTS/explorer_integration_spec.lua",
+        },
+        {
+          repo = "nvim-lua/plenary.nvim",
+          ref = "74b06c6c75e4eeb3108ec01852001636d85a932b",
+          why = "a hard dependency of neo-tree.nvim in TESTS/explorer_integration_spec.lua",
+        },
+      },
+      publish = {
+        why = "hover.nvim checks out fileops.nvim at ci-verified (its test sheet hover.fileops-on-hold)",
+      },
+    },
+    steps = {
+      ["workflow-in-sync"] = { preset = "workflow-in-sync" },
+    },
+  },
 }
