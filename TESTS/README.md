@@ -279,12 +279,14 @@ deps, `nui.nvim` and `plenary.nvim` — are found, looked up by the spec itself 
 this order (plenary is only the neo-tree dependency here, not the test runner):
 
 1. `$NEO_TREE_NVIM_DIR` / `$NVIM_TREE_LUA_DIR` / `$NUI_NVIM_DIR` / `$PLENARY_NVIM_DIR`
-2. a sibling checkout (`../neo-tree.nvim`, `../nvim-tree.lua`, `../nui.nvim`, `../plenary.nvim`)
+2. `.deps/<name>` (what the CI workflow checks out)
+3. a sibling checkout (`../neo-tree.nvim`, `../nvim-tree.lua`, `../nui.nvim`, `../plenary.nvim`)
 
-CI runs it as its own `explorer-integration` job in `.github/workflows/ci.yml`,
-which checks the four repos out as siblings and runs with `--strict`, so a skip
-there is red. A local run with nothing checked out just reports it as a skip —
-the main `test` job (and a plain `bash scripts/test.sh`) never depend on it.
+CI checks the four repos out below `.deps/` on every leg (`ci.workflow.checkouts`
+in `.testing.lua`, from which `.github/workflows/ci.yml` is generated), so the
+spec runs as part of the suite there. A local run with nothing checked out just
+reports it as a skip. The test sheets that load filetree.nvim or gitsuite.nvim
+find them the same way (`TESTS/sheets/_deps.lua`).
 
 ## Adding a spec
 

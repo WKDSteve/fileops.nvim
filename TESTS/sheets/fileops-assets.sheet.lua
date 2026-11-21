@@ -1,6 +1,6 @@
 -- Live check: cascade-delete of orphaned assets with the real filetree.nvim refs engine and the real
 -- dialog (task fileops.nvim/testblatt-bindings-checkliste; section 3a of
--- ALL/manual-test-checklists/fileops.md). filetree.nvim is a CI checkout beside this repo and on no
+-- ALL/manual-test-checklists/fileops.md). filetree.nvim is a CI checkout (TESTS/sheets/_deps.lua finds it) and on no
 -- other sheet's runtimepath. The OS trash is stubbed (TESTS/sheets/_helpers.lua).
 return {
   id = "fileops.assets",
@@ -11,9 +11,8 @@ return {
   sizes = { { rows = 24, cols = 80 } },
   requires = {
     {
-      lua = [[vim.fn.isdirectory(vim.env.FILETREE_NVIM_DIR
-        or (vim.fs.dirname(vim.fn.getcwd()) .. "/filetree.nvim")) == 1]],
-      reason = "filetree.nvim is not beside this repo",
+      lua = [[dofile(vim.fn.getcwd() .. "/TESTS/sheets/_deps.lua")("filetree.nvim") ~= nil]],
+      reason = "filetree.nvim is neither in $FILETREE_NVIM_DIR, .deps/ nor beside this repo",
     },
   },
   steps = {
@@ -52,8 +51,7 @@ return {
 
     -- installed, feature off (the upstream default)
     {
-      lua = [[vim.opt.rtp:append(vim.env.FILETREE_NVIM_DIR
-        or (vim.fs.dirname(vim.env.FILEOPS_ROOT) .. "/filetree.nvim"))
+      lua = [[vim.opt.rtp:append(dofile(vim.env.FILEOPS_ROOT .. "/TESTS/sheets/_deps.lua")("filetree.nvim"))
       require("filetree.refs").setup({})
       _G.reset()]],
     },

@@ -5,12 +5,14 @@
 --
 -- Optional and skip-by-default: neither plugin is a runtime dependency of
 -- fileops.nvim, and neither is expected on a contributor's machine. Resolved
--- the same way `run.lua` resolves lib.nvim — `$<NAME>_DIR`, then a sibling
--- checkout — so CI can opt in by checking them out next to this repo (see
--- .github/workflows/ci.yml's `explorer-integration` job) while a local run
+-- like TESTS/minimal_init.lua — `$<NAME>_DIR`, then `.deps/<name>`, then a
+-- sibling checkout — so CI opts in by checking them out below `.deps/` (see
+-- `ci.workflow.checkouts` in .testing.lua) while a local run
 -- with nothing checked out just prints `skip` and passes.
 
-local function spec(H)
+---@param H table
+---@param added string[] the runtimepath entries this spec appends (taken off again by `cleanup`)
+local function spec(H, added)
   local ok = H.ok
 
   -- This repo's own root, resolved from THIS FILE's location rather than
@@ -30,9 +32,12 @@ local function spec(H)
     if env and env ~= "" and vim.fn.isdirectory(env) == 1 then
       return vim.fs.normalize(env)
     end
-    local sibling = vim.fs.normalize(repo_root .. "/../" .. dirname)
-    if vim.fn.isdirectory(sibling) == 1 then
-      return sibling
+    -- .deps/<name>: where the generated CI workflow checks it out (ci.workflow.checkouts in .testing.lua)
+    for _, dir in ipairs({ repo_root .. "/.deps/" .. dirname, repo_root .. "/../" .. dirname }) do
+      dir = vim.fs.normalize(dir)
+      if vim.fn.isdirectory(dir) == 1 then
+        return dir
+      end
     end
     return nil
   end
@@ -52,6 +57,7 @@ local function spec(H)
       return
     end
     vim.opt.rtp:append(d)
+    added[#added + 1] = d
   end
 
   local ok_neo, neo_err = pcall(function()
@@ -85,6 +91,48 @@ local function spec(H)
   ok(dok, "delete against real explorers: " .. tostring(dmsg))
 end
 
+---The autocmds of the event in no group (an `:autocmd` without a group has no id, so H.preserve cannot take it away).
+---@param event string
+---@return integer
+local function ungrouped(event)
+  local n = 0
+  for _, au in ipairs(vim.api.nvim_get_autocmds({ event = event })) do
+    if au.group == nil then
+      n = n + 1
+    end
+  end
+  return n
+end
+
+---What the real explorers leave in the editor the suite shares (isolated = "none") and H.preserve does not take back:
+---the runtimepath entries, nvim-tree's VimEnter autocmd in no group, and their loaded modules (with
+---`package.loaded["neo-tree"]` left set, every later spec would take the real refresh branch of ops/file.lua).
+---@param added string[]
+---@param vimenter_before integer
+local function cleanup(added, vimenter_before)
+  for _, d in ipairs(added) do
+    vim.opt.rtp:remove(d)
+  end
+  -- only when there was none before: `autocmd! VimEnter *` removes every one in no group
+  if vimenter_before == 0 and ungrouped("VimEnter") > 0 then
+    vim.cmd("silent! autocmd! VimEnter *")
+  end
+  for name in pairs(package.loaded) do
+    for _, prefix in ipairs({ "neo-tree", "nvim-tree", "nui", "plenary" }) do
+      if name == prefix or name:sub(1, #prefix + 1) == prefix .. "." then
+        package.loaded[name] = nil
+      end
+    end
+  end
+end
+
 return function(H)
-  H.run_preserved(spec)
+  H.run_preserved(function(h)
+    local added, vimenter_before = {}, ungrouped("VimEnter")
+    local okk, err = xpcall(spec, debug.traceback, h, added)
+    cleanup(added, vimenter_before)
+    if not okk then
+      error(err, 0)
+    end
+  end)
 end

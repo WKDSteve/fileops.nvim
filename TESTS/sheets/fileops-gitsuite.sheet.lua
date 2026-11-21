@@ -1,7 +1,7 @@
 -- Live check: with the real gitsuite.nvim on the runtimepath: it highlights the conflict instead of
 -- fileops' fallback, and its real events refresh the explorer (task
 -- fileops.nvim/testblatt-bindings-checkliste; section 10 of ALL/manual-test-checklists/fileops.md).
--- gitsuite.nvim is a CI checkout beside this repo and on no other sheet's runtimepath.
+-- gitsuite.nvim is a CI checkout (TESTS/sheets/_deps.lua finds it) and on no other sheet's runtimepath.
 return {
   id = "fileops.gitsuite",
   feature = "fileops.gitsuite",
@@ -11,16 +11,14 @@ return {
   sizes = { { rows = 24, cols = 80 } },
   requires = {
     {
-      lua = [[vim.fn.isdirectory(vim.env.GITSUITE_NVIM_DIR
-        or (vim.fs.dirname(vim.fn.getcwd()) .. "/gitsuite.nvim")) == 1]],
-      reason = "gitsuite.nvim is not beside this repo",
+      lua = [[dofile(vim.fn.getcwd() .. "/TESTS/sheets/_deps.lua")("gitsuite.nvim") ~= nil]],
+      reason = "gitsuite.nvim is neither in $GITSUITE_NVIM_DIR, .deps/ nor beside this repo",
     },
   },
   steps = {
     {
       lua = [[dofile(vim.fn.getcwd() .. "/TESTS/sheets/_helpers.lua")
-      vim.opt.rtp:append(vim.env.GITSUITE_NVIM_DIR
-        or (vim.fs.dirname(vim.fn.getcwd()) .. "/gitsuite.nvim"))
+      vim.opt.rtp:append(dofile(vim.fn.getcwd() .. "/TESTS/sheets/_deps.lua")("gitsuite.nvim"))
       require("fileops").setup({})
       _G.sandbox()
       _G.explorer()
